@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="冰川国家公园 Many Glacier 区 Grinnell Glacier、Iceberg Lake 与 Ptarmigan Tunnel 徒步图文指南：距离、爬升、时间、路线节点、实景参考与安全提示。">
+  <meta name="theme-color" content="#123b36">
+  <meta property="og:title" content="Many Glacier 三条经典路线｜图文徒步指南">
+  <meta property="og:description" content="Grinnell Glacier Trailhead 与 Iceberg–Ptarmigan Trailhead：路线数据、逐站景观、实景参考和行前提醒。">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="assets/glacier/swiftcurrent-lake.jpg">
+  <title>Many Glacier 徒步指南｜Grinnell Glacier &amp; Iceberg–Ptarmigan</title>
+  <style>
+    :root {
+      --pine-950: #0b2926;
+      --pine-900: #123b36;
+      --pine-800: #1a5148;
+      --pine-700: #256a5d;
+      --glacier: #57c9d0;
+      --glacier-deep: #0d7f8d;
+      --sky: #dff4f5;
+      --snow: #fbfaf5;
+      --paper: #f2efe6;
+      --sand: #ded5c3;
+      --stone: #6f746f;
+      --ink: #142321;
+      --amber: #ef9a4a;
+      --amber-soft: #fff0dc;
+      --red: #a84732;
+      --white: #fff;
+      --line: rgba(20, 35, 33, .13);
+      --shadow: 0 18px 55px rgba(11, 41, 38, .12);
+      --radius-lg: 30px;
+      --radius-md: 20px;
+      --radius-sm: 12px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--snow);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { display: block; width: 100%; }
+    a { color: inherit; }
+    a:focus-visible, button:focus-visible { outline: 3px solid var(--amber); outline-offset: 4px; }
+
+    .topbar {
+      position: sticky;
+      z-index: 30;
+      top: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      min-height: 66px;
+      padding: 10px max(22px, calc((100vw - 1180px) / 2));
+      color: var(--white);
+      background: rgba(11, 41, 38, .93);
+      border-bottom: 1px solid rgba(255, 255, 255, .12);
+      backdrop-filter: blur(14px);
+    }
+    .brand { display: flex; align-items: center; gap: 11px; text-decoration: none; font-weight: 850; letter-spacing: -.02em; }
+    .brand-mark { display: grid; place-items: center; width: 34px; height: 34px; color: var(--pine-950); background: var(--glacier); border-radius: 50% 50% 48% 52% / 42% 42% 58% 58%; font-size: 16px; }
+    .topnav { display: flex; align-items: center; gap: 6px; }
+    .topnav a { padding: 8px 11px; color: rgba(255, 255, 255, .78); border-radius: 999px; font-size: 13px; font-weight: 700; text-decoration: none; }
+    .topnav a:hover { color: var(--white); background: rgba(255, 255, 255, .1); }
+    .topnav .status-link { color: var(--pine-950); background: var(--glacier); }
+    .topnav .status-link:hover { color: var(--pine-950); background: #7bdce0; }
+
+    .hero {
+      position: relative;
+      isolation: isolate;
+      min-height: min(720px, calc(100vh - 66px));
+      display: grid;
+      align-items: end;
+      overflow: hidden;
+      color: var(--white);
+      background: var(--pine-950);
+    }
+    .hero > img { position: absolute; z-index: -2; inset: 0; height: 100%; object-fit: cover; object-position: 50% 48%; }
+    .hero::after { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(180deg, rgba(5, 20, 20, .06) 12%, rgba(5, 20, 20, .22) 47%, rgba(5, 20, 20, .92) 100%), linear-gradient(90deg, rgba(5, 20, 20, .5), transparent 62%); }
+    .hero-content { width: min(1180px, calc(100% - 44px)); margin: 0 auto; padding: 84px 0 58px; }
+    .eyebrow { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; color: #a9eef0; font-size: 12px; font-weight: 850; letter-spacing: .17em; text-transform: uppercase; }
+    .eyebrow::before { content: ""; width: 38px; height: 2px; background: currentColor; }
+    h1 { max-width: 910px; margin: 0; font-family: Georgia, "Songti SC", "STSong", serif; font-size: clamp(42px, 7vw, 83px); font-weight: 600; letter-spacing: -.045em; line-height: .98; text-wrap: balance; }
+    .hero-lede { max-width: 720px; margin: 23px 0 30px; color: rgba(255, 255, 255, .82); font-size: clamp(16px, 2.2vw, 20px); }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 11px; }
+    .button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 17px; color: var(--pine-950); background: var(--glacier); border: 1px solid transparent; border-radius: 999px; font-size: 14px; font-weight: 850; text-decoration: none; }
+    .button:hover { background: #7bdce0; }
+    .button.ghost { color: var(--white); background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .28); }
+    .button.ghost:hover { background: rgba(255, 255, 255, .16); }
+    .photo-credit { position: absolute; right: max(18px, calc((100vw - 1180px) / 2)); bottom: 18px; color: rgba(255, 255, 255, .55); font-size: 10px; }
+    .photo-credit a:hover { color: var(--white); }
+
+    .section { padding: 92px 0; }
+    .section.tinted { background: var(--paper); }
+    .section.dark { color: var(--white); background: var(--pine-950); }
+    .wrap { width: min(1180px, calc(100% - 44px)); margin: 0 auto; }
+    .section-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .65fr); gap: 50px; align-items: end; margin-bottom: 38px; }
+    .kicker { margin: 0 0 9px; color: var(--glacier-deep); font-size: 12px; font-weight: 850; letter-spacing: .14em; text-transform: uppercase; }
+    .dark .kicker { color: var(--glacier); }
+    h2 { margin: 0; font-family: Georgia, "Songti SC", "STSong", serif; font-size: clamp(34px, 5vw, 58px); font-weight: 600; letter-spacing: -.04em; line-height: 1.05; text-wrap: balance; }
+    .section-intro { margin: 0; color: var(--stone); font-size: 15px; }
+    .dark .section-intro { color: rgba(255, 255, 255, .66); }
+
+    .quick-grid { position: relative; z-index: 2; display: grid; grid-template-columns: 1.08fr 1fr 1fr; gap: 15px; margin-top: -30px; }
+    .quick-card { min-width: 0; display: grid; grid-template-rows: auto 1fr auto; min-height: 315px; padding: 26px; background: rgba(255, 255, 255, .96); border: 1px solid rgba(255, 255, 255, .7); border-radius: var(--radius-md); box-shadow: var(--shadow); }
+    .quick-card.featured { color: var(--white); background: var(--pine-900); border-color: var(--pine-900); }
+    .route-label { display: flex; justify-content: space-between; align-items: center; gap: 14px; color: var(--glacier-deep); font-size: 11px; font-weight: 850; letter-spacing: .11em; text-transform: uppercase; }
+    .route-label span:first-child { min-width: 0; overflow-wrap: anywhere; }
+    .featured .route-label { color: var(--glacier); }
+    .difficulty { padding: 5px 9px; color: var(--red); background: #fff1ed; border-radius: 999px; font-size: 10px; letter-spacing: .08em; }
+    .featured .difficulty { color: #ffd7bc; background: rgba(255, 255, 255, .1); }
+    .quick-card h3 { margin: 19px 0 7px; font-family: Georgia, "Songti SC", "STSong", serif; font-size: 28px; line-height: 1.1; }
+    .quick-card p { margin: 0; color: var(--stone); font-size: 13px; }
+    .featured p { color: rgba(255, 255, 255, .65); }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 22px; }
+    .metric { padding-top: 13px; border-top: 1px solid var(--line); }
+    .featured .metric { border-color: rgba(255, 255, 255, .16); }
+    .metric strong { display: block; font-size: 18px; letter-spacing: -.03em; white-space: nowrap; }
+    .metric span { display: block; margin-top: 2px; color: var(--stone); font-size: 10px; }
+    .featured .metric span { color: rgba(255, 255, 255, .55); }
+    .data-note { margin: 18px 0 0; padding: 15px 18px; color: #4d5e5a; background: var(--sky); border-left: 4px solid var(--glacier-deep); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 12px; }
+    .data-note b { color: var(--pine-900); }
+
+    .route-rail { position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; margin: 42px 0 48px; }
+    .route-rail::before { content: ""; position: absolute; top: 18px; right: 10%; left: 10%; height: 2px; background: linear-gradient(90deg, var(--glacier-deep), var(--glacier)); }
+    .rail-stop { position: relative; z-index: 1; padding: 0 8px; text-align: center; }
+    .rail-dot { display: grid; place-items: center; width: 38px; height: 38px; margin: 0 auto 12px; color: var(--white); background: var(--pine-900); border: 5px solid var(--snow); border-radius: 50%; box-shadow: 0 0 0 1px var(--glacier-deep); font-size: 11px; font-weight: 900; }
+    .tinted .rail-dot { border-color: var(--paper); }
+    .rail-stop b { display: block; font-size: 13px; line-height: 1.25; }
+    .rail-stop span { display: block; margin-top: 3px; color: var(--stone); font-size: 10px; }
+
+    .trail-summary { display: grid; grid-template-columns: 1.35fr .65fr; gap: 18px; margin-bottom: 25px; }
+    .summary-panel { padding: 26px; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-md); }
+    .summary-panel h3 { margin: 0 0 11px; font-size: 18px; }
+    .summary-panel p { margin: 0; color: var(--stone); font-size: 14px; }
+    .summary-panel .inline-link { display: inline-block; margin-top: 12px; color: var(--glacier-deep); font-size: 12px; font-weight: 800; }
+    .choice-panel { padding: 26px; color: var(--white); background: var(--pine-900); border-radius: var(--radius-md); }
+    .choice-panel .small { color: var(--glacier); font-size: 11px; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
+    .choice-panel strong { display: block; margin: 7px 0; font-family: Georgia, "Songti SC", serif; font-size: 25px; line-height: 1.1; }
+    .choice-panel p { margin: 0; color: rgba(255, 255, 255, .65); font-size: 12px; }
+
+    .view-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; }
+    .view-card { min-width: 0; grid-column: span 6; overflow: hidden; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: 0 10px 35px rgba(11, 41, 38, .07); }
+    .view-card.wide { grid-column: span 12; display: grid; grid-template-columns: 1.12fr .88fr; }
+    .view-image { position: relative; min-height: 330px; margin: 0; overflow: hidden; background: var(--sand); }
+    .view-card.wide .view-image { min-height: 430px; }
+    .view-image img { height: 100%; object-fit: cover; transition: transform .6s ease; }
+    .view-card:hover .view-image img { transform: scale(1.025); }
+    .view-image figcaption { position: absolute; right: 12px; bottom: 11px; max-width: calc(100% - 24px); padding: 5px 8px; color: rgba(255, 255, 255, .82); background: rgba(7, 24, 22, .72); border-radius: 7px; font-size: 9px; backdrop-filter: blur(7px); }
+    .view-image figcaption a:hover { color: var(--white); }
+    .view-copy { padding: 24px 25px 26px; }
+    .view-meta { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 13px; }
+    .chip { padding: 5px 9px; color: var(--pine-800); background: var(--sky); border-radius: 999px; font-size: 10px; font-weight: 800; }
+    .chip.warn { color: #82471b; background: var(--amber-soft); }
+    .view-copy h3 { margin: 0; font-family: Georgia, "Songti SC", "STSong", serif; font-size: 25px; line-height: 1.15; }
+    .view-copy p { margin: 11px 0 0; color: var(--stone); font-size: 13px; }
+    .look-for { margin-top: 15px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 12px; }
+    .look-for b { color: var(--pine-800); }
+
+    .branch-map { display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: stretch; margin: 38px 0 46px; }
+    .branch { min-width: 0; padding: 25px; color: var(--white); background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .12); border-radius: var(--radius-md); }
+    .branch.highlight { background: var(--glacier-deep); border-color: var(--glacier); }
+    .branch h3 { margin: 0 0 8px; font-family: Georgia, "Songti SC", serif; font-size: 25px; }
+    .branch p { margin: 0; color: rgba(255, 255, 255, .63); font-size: 12px; }
+    .branch.highlight p { color: rgba(255, 255, 255, .78); }
+    .branch-stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 17px; }
+    .branch-stats span { padding: 6px 9px; background: rgba(255, 255, 255, .1); border-radius: 999px; font-size: 10px; font-weight: 800; }
+    .fork { display: grid; place-items: center; align-self: center; width: 54px; height: 54px; color: var(--pine-950); background: var(--glacier); border-radius: 50%; font-size: 21px; font-weight: 900; }
+    .dark .view-card { color: var(--ink); }
+
+    .decision { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .decision-card { min-height: 330px; padding: 34px; border-radius: var(--radius-lg); }
+    .decision-card:first-child { color: var(--white); background: var(--pine-900); }
+    .decision-card:last-child { background: var(--sky); }
+    .decision-card .num { color: var(--glacier); font-family: Georgia, serif; font-size: 54px; line-height: 1; }
+    .decision-card:last-child .num { color: var(--glacier-deep); }
+    .decision-card h3 { margin: 16px 0 9px; font-family: Georgia, "Songti SC", serif; font-size: 31px; line-height: 1.1; }
+    .decision-card p { margin: 0; color: rgba(255, 255, 255, .66); font-size: 14px; }
+    .decision-card:last-child p { color: #47635f; }
+    .decision-list { display: grid; gap: 7px; margin: 19px 0 0; padding: 0; list-style: none; }
+    .decision-list li { display: grid; grid-template-columns: 16px 1fr; gap: 8px; font-size: 12px; }
+    .decision-list li::before { content: "✓"; color: var(--glacier); font-weight: 900; }
+    .decision-card:last-child .decision-list li::before { color: var(--glacier-deep); }
+
+    .safety-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 13px; margin-top: 33px; }
+    .safety-card { padding: 21px; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-md); }
+    .safety-icon { display: grid; place-items: center; width: 39px; height: 39px; color: var(--pine-950); background: var(--glacier); border-radius: 13px; font-size: 18px; }
+    .safety-card h3 { margin: 15px 0 7px; font-size: 15px; }
+    .safety-card p { margin: 0; color: var(--stone); font-size: 11px; }
+    .alert { display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center; margin-top: 16px; padding: 20px 22px; color: #73351f; background: #fff2e8; border: 1px solid #f1c3aa; border-radius: var(--radius-md); }
+    .alert-mark { display: grid; place-items: center; width: 42px; height: 42px; color: var(--white); background: var(--red); border-radius: 50%; font-weight: 900; }
+    .alert strong { display: block; font-size: 14px; }
+    .alert span { display: block; margin-top: 2px; font-size: 11px; }
+    .alert a { color: var(--red); font-size: 12px; font-weight: 850; white-space: nowrap; }
+
+    .source-layout { display: grid; grid-template-columns: .8fr 1.2fr; gap: 36px; }
+    .source-lede { padding: 30px; color: var(--white); background: var(--pine-900); border-radius: var(--radius-lg); }
+    .source-lede h2 { font-size: 37px; }
+    .source-lede p { margin: 16px 0 0; color: rgba(255, 255, 255, .62); font-size: 13px; }
+    .checked { display: inline-flex; margin-top: 21px; padding: 7px 10px; color: var(--pine-950); background: var(--glacier); border-radius: 999px; font-size: 10px; font-weight: 850; }
+    .sources { display: grid; gap: 10px; }
+    .source { min-width: 0; display: grid; grid-template-columns: 35px minmax(0, 1fr) auto; gap: 13px; align-items: center; padding: 17px; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-sm); text-decoration: none; transition: border-color .2s, transform .2s; }
+    .source:hover { transform: translateY(-2px); border-color: var(--glacier-deep); }
+    .source-num { color: var(--glacier-deep); font-family: Georgia, serif; font-size: 22px; }
+    .source b { display: block; font-size: 13px; }
+    .source small { display: block; margin-top: 2px; color: var(--stone); font-size: 10px; }
+    .source-arrow { color: var(--glacier-deep); font-weight: 900; }
+
+    footer { padding: 33px 0 42px; color: rgba(255, 255, 255, .55); background: #071e1c; font-size: 11px; }
+    .footer-row { display: flex; justify-content: space-between; gap: 28px; }
+    .footer-row p { max-width: 760px; margin: 0; }
+    .back-top { color: var(--glacier); font-weight: 800; text-decoration: none; white-space: nowrap; }
+
+    @media (max-width: 920px) {
+      .quick-grid { grid-template-columns: 1fr; margin-top: 0; padding-top: 20px; }
+      .quick-card { min-height: 0; }
+      .section-head, .trail-summary, .source-layout { grid-template-columns: 1fr; gap: 20px; }
+      .view-card, .view-card.wide { grid-column: span 12; display: block; }
+      .view-image, .view-card.wide .view-image { min-height: 380px; }
+      .safety-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 700px) {
+      .topbar { min-height: 58px; padding-inline: 16px; }
+      .brand span:last-child { display: none; }
+      .topnav a { display: none; }
+      .topnav .status-link { display: inline-flex; padding: 7px 10px; font-size: 11px; }
+      .hero { min-height: 650px; }
+      .hero-content, .wrap { width: min(100% - 28px, 560px); }
+      .hero-content { padding-bottom: 50px; }
+      .eyebrow { gap: 7px; font-size: 10px; letter-spacing: .11em; }
+      .eyebrow::before { width: 30px; }
+      .section { padding: 70px 0; }
+      .photo-credit { right: 14px; bottom: 9px; }
+      .route-rail { grid-template-columns: 1fr; gap: 14px; margin: 28px 0 36px; }
+      .route-rail::before { top: 18px; bottom: 18px; left: 18px; width: 2px; height: auto; background: linear-gradient(180deg, var(--glacier-deep), var(--glacier)); }
+      .rail-stop { display: grid; grid-template-columns: 38px 1fr; gap: 12px; align-items: center; padding: 0; text-align: left; }
+      .rail-dot { margin: 0; }
+      .rail-stop span { margin-top: 1px; }
+      .branch-map { grid-template-columns: 1fr; }
+      .fork { margin: -4px auto; }
+      .decision { grid-template-columns: 1fr; }
+      .decision-card { min-height: 0; padding: 27px; }
+      .safety-grid { grid-template-columns: 1fr; }
+      .alert { grid-template-columns: auto 1fr; }
+      .alert a { grid-column: 2; }
+      .view-image, .view-card.wide .view-image { min-height: 300px; }
+      .footer-row { display: block; }
+      .back-top { display: inline-block; margin-top: 15px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .view-image img, .source { transition: none; }
+    }
+    @media print {
+      .topbar, .hero-actions, .alert a, .back-top { display: none; }
+      .hero { min-height: 460px; }
+      .section { padding: 45px 0; }
+      .quick-grid { margin-top: 20px; }
+      .view-card, .summary-panel, .safety-card, .source { box-shadow: none; break-inside: avoid; }
+      .view-image img { print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body id="top">
+  <nav class="topbar" aria-label="页面导航">
+    <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">▲</span><span>Many Glacier · Trail Notes</span></a>
+    <div class="topnav">
+      <a href="#compare">快速比较</a>
+      <a href="#grinnell">Grinnell</a>
+      <a href="#iceberg">Iceberg–Ptarmigan</a>
+      <a href="#choose">怎么选</a>
+      <a class="status-link" href="https://www.nps.gov/glac/planyourvisit/trailstatusreports.htm" target="_blank" rel="noopener">NPS 实时路况 ↗</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <img src="assets/glacier/swiftcurrent-lake.jpg" alt="Swiftcurrent Lake 湖面与 Many Glacier 群峰全景" fetchpriority="high">
+    <div class="hero-content">
+      <div class="eyebrow">Glacier National Park · Many Glacier</div>
+      <h1>两处 Trailhead，<br>三种史诗级终点</h1>
+      <p class="hero-lede">从湖岸、花海一路走到冰川；或沿同一条山谷，在冰湖与穿山隧道之间做选择。这里把 Grinnell Glacier 与 Iceberg–Ptarmigan 的路线、爬升和每个关键景观一次讲清。</p>
+      <div class="hero-actions">
+        <a class="button" href="#compare">先看路线对比 <span aria-hidden="true">↓</span></a>
+        <a class="button ghost" href="https://www.nps.gov/glac/planyourvisit/upload/Many-Glacier.pdf" target="_blank" rel="noopener">打开 NPS 官方地图 ↗</a>
+      </div>
+    </div>
+    <div class="photo-credit">Swiftcurrent Lake · <a href="https://commons.wikimedia.org/wiki/File:Grinnell_Point_and_Swiftcurrent_Lake_in_Glacier_National_Park,_Montana,_U.S.A.jpg" target="_blank" rel="noopener">IIP Photo Archive / CC BY 2.0</a></div>
+  </header>
+
+  <main>
+    <section class="section" id="compare">
+      <div class="wrap">
+        <div class="quick-grid" aria-label="三条路线快速对比">
+          <article class="quick-card featured">
+            <div class="route-label"><span>Grinnell Glacier Trailhead</span><span class="difficulty">高强度</span></div>
+            <div>
+              <h3>Grinnell Glacier Viewpoint</h3>
+              <p>最丰富的一条：Swiftcurrent 与 Josephine 湖岸、俯瞰 Grinnell Lake、季节瀑布、Upper Grinnell Lake 和冰川近景。</p>
+            </div>
+            <div class="metrics">
+              <div class="metric"><strong>10.0 mi</strong><span>往返 · 16.0 km</span></div>
+              <div class="metric"><strong>+1,581 ft</strong><span>净爬升 · 482 m</span></div>
+              <div class="metric"><strong>6–8 h</strong><span>含正常停留</span></div>
+            </div>
+          </article>
+
+          <article class="quick-card">
+            <div class="route-label"><span>Iceberg–Ptarmigan Trailhead</span><span class="difficulty">中高强度</span></div>
+            <div>
+              <h3>Iceberg Lake</h3>
+              <p>先爬到开阔山腰，再穿过森林与野花坡；终点是被近 2,000 英尺岩壁包围的碧蓝冰斗湖。</p>
+            </div>
+            <div class="metrics">
+              <div class="metric"><strong>9.6 mi</strong><span>往返 · 15.4 km</span></div>
+              <div class="metric"><strong>+1,141 ft</strong><span>净爬升 · 348 m</span></div>
+              <div class="metric"><strong>4.5–6.5 h</strong><span>含湖边停留</span></div>
+            </div>
+          </article>
+
+          <article class="quick-card">
+            <div class="route-label"><span>Iceberg–Ptarmigan Trailhead</span><span class="difficulty">高强度</span></div>
+            <div>
+              <h3>Ptarmigan Tunnel</h3>
+              <p>在 Ptarmigan Falls 后转入支线，经 Ptarmigan Lake 与碎石坡折返，穿过 1930 年凿出的山体隧道看 Belly River。</p>
+            </div>
+            <div class="metrics">
+              <div class="metric"><strong>10.6 mi</strong><span>往返 · 17.0 km</span></div>
+              <div class="metric"><strong>+2,300 ft</strong><span>爬升 · 701 m</span></div>
+              <div class="metric"><strong>6–8 h</strong><span>含隧道两侧</span></div>
+            </div>
+          </article>
+        </div>
+
+        <p class="data-note"><b>为什么你会看到两组爬升数字？</b> NPS 的 2026 GIS 路线页把单程途中所有上坡和下坡分别相加：Grinnell 为上坡 2,596 ft / 下坡 1,015 ft，Iceberg 为上坡 1,765 ft / 下坡 624 ft。上面的“净爬升”是两者相减，约等于传统 NPS Many Glacier 地图所列的 1,600 ft 与 1,200 ft。完整往返时，你仍会把途中下降重新爬回来。</p>
+      </div>
+    </section>
+
+    <section class="section tinted" id="grinnell">
+      <div class="wrap">
+        <header class="section-head">
+          <div>
+            <p class="kicker">Route 01 · Grinnell Glacier</p>
+            <h2>先是湖岸漫步，<br>后半程一路抬升</h2>
+          </div>
+          <p class="section-intro">从 Grinnell Glacier Trailhead 步行全程，NPS 2026 路线数据为单程约 5.0 mi。前约 2.1 mi 大致沿两座湖前进；离开 Lake Josephine 后，路线转为无遮蔽的持续上坡，真正的景观也从这里展开。</p>
+        </header>
+
+        <div class="route-rail" aria-label="Grinnell Glacier 路线节点">
+          <div class="rail-stop"><div class="rail-dot">0.0</div><div><b>Trailhead</b><span>Swiftcurrent Lake</span></div></div>
+          <div class="rail-stop"><div class="rail-dot">≈1</div><div><b>Lake Josephine</b><span>平缓湖岸</span></div></div>
+          <div class="rail-stop"><div class="rail-dot">≈2.3</div><div><b>Grinnell Lake 初见</b><span>开始持续爬升</span></div></div>
+          <div class="rail-stop"><div class="rail-dot">≈4</div><div><b>瀑布与高山横切</b><span>湿滑 / 暴露</span></div></div>
+          <div class="rail-stop"><div class="rail-dot">5.0</div><div><b>Glacier Viewpoint</b><span>Upper Grinnell Lake</span></div></div>
+        </div>
+
+        <div class="trail-summary">
+          <div class="summary-panel">
+            <h3>路线一句话</h3>
+            <p>沿 Swiftcurrent Lake 西岸与 Lake Josephine 北岸进入山谷，在西端路口转上 Grinnell Glacier Trail；之后高位横切 Grinnell Lake 北侧山坡，通过季节性瀑布与碎石台阶，最后翻上冰碛脊抵达 Upper Grinnell Lake。原路返回最直接。</p>
+            <a class="inline-link" href="https://www.nps.gov/places/grinnell-glacier-trailhead.htm" target="_blank" rel="noopener">NPS Grinnell Glacier Trailhead 数据 ↗</a>
+          </div>
+          <aside class="choice-panel">
+            <span class="small">Boat option</span>
+            <strong>坐船可减至约 7.4 mi 往返</strong>
+            <p>从 Many Glacier Hotel 依次横渡 Swiftcurrent Lake 与 Lake Josephine；NPS 2026 数据显示下船后到终点单程约 3.7 mi。船票收费、旺季宜预订，且不要把末班船当成唯一返程方案。</p>
+          </aside>
+        </div>
+
+        <div class="view-grid">
+          <article class="view-card">
+            <figure class="view-image">
+              <img src="assets/glacier/swiftcurrent-lake.jpg" alt="平静的 Swiftcurrent Lake 与 Grinnell Point 山峰倒影" loading="lazy">
+              <figcaption><a href="https://commons.wikimedia.org/wiki/File:Grinnell_Point_and_Swiftcurrent_Lake_in_Glacier_National_Park,_Montana,_U.S.A.jpg" target="_blank" rel="noopener">IIP Photo Archive · CC BY 2.0</a></figcaption>
+            </figure>
+            <div class="view-copy">
+              <div class="view-meta"><span class="chip">0–1 mi</span><span class="chip">热身段</span></div>
+              <h3>Swiftcurrent Lake 湖岸</h3>
+              <p>从 picnic area 附近进入森林，路线贴着湖的西侧前进。路面总体平缓，晨光下最容易看清 Grinnell Point、Mount Wilbur 与水面倒影，也是观察当天云层和风势的第一站。</p>
+              <div class="look-for"><b>看什么：</b>湖面倒影、Many Glacier Hotel 远景、林缘可能出现的驼鹿。</div>
+            </div>
+          </article>
+
+          <article class="view-card">
+            <figure class="view-image">
+              <img src="assets/glacier/lake-josephine.jpg" alt="Lake Josephine 西端视角下的 Grinnell 山谷与冰川" loading="lazy">
+              <figcaption><a href="https://commons.wikimedia.org/wiki/File:Grinnell_Glacier_from_Lake_Josephine_in_2021_(54209695358).jpg" target="_blank" rel="noopener">GlacierNPS · Public domain</a></figcaption>
+            </figure>
+            <div class="view-copy">
+              <div class="view-meta"><span class="chip">约 1–2.1 mi</span><span class="chip">船线汇合</span></div>
+              <h3>Lake Josephine</h3>
+              <p>湖岸仍以森林和平路为主；抵达西端后，boat dock 支线与主路汇合。这里像一道清晰分界线：之前是舒适的湖边步行，之后约 3 mi 才是 Grinnell 的主要爬升。</p>
+              <div class="look-for"><b>看什么：</b>Mount Gould、Angel Wing 与 Salamander Glacier 所在的巨大岩壁。</div>
+            </div>
+          </article>
+
+          <article class="view-card">
+            <figure class="view-image">
+              <img src="assets/glacier/grinnell-lake.jpg" alt="Grinnell Glacier Trail 高处俯瞰蓝绿色的 Grinnell Lake" loading="lazy">
+              <figcaption><a href="https://commons.wikimedia.org/wiki/File:Grinnell_Lake.jpg" target="_blank" rel="noopener">Tibor75 · CC BY 3.0</a></figcaption>
+            </figure>
+            <div class="view-copy">
+              <div class="view-meta"><span class="chip">约 2.3 mi 起</span><span class="chip">经典机位</span></div>
+              <h3>Grinnell Lake 俯瞰</h3>
+              <p>离开 Lake Josephine 的路口不久，森林逐渐打开，乳蓝色的 Grinnell Lake 会第一次完整出现在脚下。随着高度增加，Lake Josephine 与更远的 Lake Sherburne 也排成一线。</p>
+              <div class="look-for"><b>看什么：</b>岩粉形成的湖水颜色、Angel Wing 陡壁与 Grinnell Falls。</div>
+            </div>
+          </article>
+
+          <article class="view-card">
+            <figure class="view-image">
+              <img src="assets/glacier/grinnell-cascade.jpg" alt="Grinnell Glacier Trail 旁流过红色岩石的季节性雪融瀑布" loading="lazy">
+              <figcaption><a href="https://commons.wikimedia.org/wiki/File:Snow_melt_cascade_along_Grinnell_Glacier_Trail_-_panoramio.jpg" target="_blank" rel="noopener">Fredlyfish4 · CC BY-SA 4.0</a></figcaption>
+            </figure>
+            <div class="view-copy">
+              <div class="view-meta"><span class="chip">约 3.7–4.3 mi</span><span class="chip warn">湿滑 / 暴露</span></div>
+              <h3>季节瀑布与山腰横切</h3>
+              <p>路线贴着山壁横切，春末到盛夏的雪融水可能直接流过步道。部分路段狭窄、外侧落差明显；下山时湿石更滑。不要为拍照走到路线外，也不要在瀑布岩面攀爬。</p>
+              <div class="look-for"><b>看什么：</b>红绿色 Belt 岩层、野花坡、回望整条 Many Glacier 湖谷。</div>
+            </div>
+          </article>
+
+          <article class="view-card wide">
+            <figure class="view-image">
+              <img src="assets/glacier/grinnell-glacier.jpg" alt="Upper Grinnell Lake、漂浮冰块与背后的 Salamander Glacier 岩壁" loading="lazy">
+              <figcaption><a href="https://commons.wikimedia.org/wiki/File:Visitors_at_Upper_Grinnell_Lake_(48920702481).jpg" target="_blank" rel="noopener">GlacierNPS · Public domain</a> · 图中冰况仅作景观参考</figcaption>
+            </figure>
+            <div class="view-copy">
+              <div class="view-meta"><span class="chip">5.0 mi 单程</span><span class="chip warn">冰川湖极冷</span></div>
+              <h3>Upper Grinnell Lake &amp; Glacier Viewpoint</h3>
+              <p>最后的巨石台阶与冰碛脊是全程最吃力的一段。越过脊线后，Upper Grinnell Lake、Grinnell Glacier 与悬在 Garden Wall 下方的 Salamander Glacier 同时出现。这里不是 Highline Trail 上的 Grinnell Glacier Overlook；你现在是在冰川盆地底部。</p>
+              <p>照片会随年份和季节呈现完全不同的冰量。湖水接近冰点、岸边冰层不稳定；不要走上浮冰、雪桥或冰川本体。</p>
+              <div class="look-for"><b>建议停留：</b>30–45 分钟补给、避风并观察天气，再预留充足时间原路下山。</div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section dark" id="iceberg">
+      <div class="wrap">
+        <header class="section-head">
+          <div>
+            <p class="kicker">Route 02 / 03 · Iceberg–Ptarmigan</p>
+            <h2>同一起点、同走 2.7 mi，<br>然后选一座冰湖或一条隧道</h2>
+          </div>
+          <p class="section-intro">Trailhead 位于 Swiftcurrent Motor Inn 后方。NPS 官方 Many Glacier 资料把 Ptarmigan Falls 标在单程 2.7 mi；瀑布附近的岔路之后，Iceberg Lake 与 Ptarmigan Tunnel 才成为两条不同路线。</p>
+        </header>
+
+        <div class="branch-map" aria-label="Iceberg Lake 与 Ptarmigan Tunnel 分岔路线">
+          <div class="branch highlight">
+            <h3>向 Iceberg Lake</h3>
+            <p>岔路后继续穿过林地和开阔草坡，最后进入被陡峭岩壁包围的冰斗。体感比 Tunnel 温和，但终点常有积雪与湿泥。</p>
+            <div class="branch-stats"><span>4.8 mi 单程</span><span>净爬升约 1,141 ft</span><span>4.5–6.5 h</span></div>
+          </div>
+          <div class="fork" aria-label="2.7 英里处分岔">Y</div>
+          <div class="branch">
+            <h3>向 Ptarmigan Tunnel</h3>
+            <p>岔路后持续上升至 Ptarmigan Lake，再用两段暴露的碎石坡折返爬到隧道。风、日晒和末段爬升更考验体力。</p>
+            <div class="branch-stats"><span>5.3 mi 单程</span><span>爬升 2,300 ft</span><span>6–8 h</span></div>
+          </div>
+        </div>
+
+        <div class="route-rail" aria-label="Iceberg Ptarmigan 路线节点">
+          <div class="rail-stop"><div class="rail-dot">0.0</div><div><b>Trailhead</b><span>Swiftcurrent 后方</span></div></div>
+          <div class="rail-stop"><div class="rail-dot">≈1</div><div><b>Mount Wilbur 山腰</b><span>开阔谷景</span></div></div>
+          <div class="rail-stop"><div class="rail-dot">2.7</div><div><b>Ptarmigan Falls</b><span>随后分岔</span></div></div>
+          <div class="rail-stop"><div class="rail-dot">4.3</div><div><b>Ptarmigan Lake</b><span>Tunnel 支线</span></div></div>
+          <div class="rail-stop"><div class="rail-dot">4.8+</div><div><b>Lake / Tunnel</b><span>4.8 / 5.3 mi 两种终点</span></div></div>
+        </div>
+
+        <div class="view-grid">
+          <article class="view-card">
+            <figure class="view-image">
+              <img src="assets/glacier/ptarmigan-falls.jpg" alt="森林与层状岩石间的 Ptarmigan Falls" loading="lazy">
+              <figcaption><a href="https://commons.wikimedia.org/wiki/File:Ptarmigan_Falls_(4157408153).jpg" target="_blank" rel="noopener">Greg Willis · CC BY-SA 2.0</a></figcaption>
+            </figure>
+            <div class="view-copy">
+              <div class="view-meta"><span class="chip">2.7 mi 单程</span><span class="chip">共同路段终点</span></div>
+              <h3>Ptarmigan Falls</h3>
+              <p>前半段先陡升离开 Swiftcurrent，再以较温和的坡度沿 Mount Wilbur 北侧前进。瀑布藏在林中，主路看到的多是层级水流而非完整正面；这里适合短休，也是判断体力的第一个可靠折返点。</p>
+              <div class="look-for"><b>下一步：</b>留意岔路牌；Iceberg Lake 与 Ptarmigan Tunnel 从这里附近分开。</div>
+            </div>
+          </article>
+
+          <article class="view-card">
+            <figure class="view-image">
+              <img src="assets/glacier/iceberg-lake.jpg" alt="冰块漂浮的 Iceberg Lake 与环绕湖面的高耸岩壁" loading="lazy">
+              <figcaption><a href="https://commons.wikimedia.org/wiki/File:Iceberg_Lake_Glacier_National_Park_USA.jpg" target="_blank" rel="noopener">National Park Service · Public domain</a></figcaption>
+            </figure>
+            <div class="view-copy">
+              <div class="view-meta"><span class="chip">4.8 mi 单程</span><span class="chip warn">积雪可至盛夏</span></div>
+              <h3>Iceberg Lake</h3>
+              <p>最后进入一座近乎封闭的巨大冰斗，Ahern Peak 与 Iceberg Peak 的岩壁从湖边骤升。湖中是否有“冰山”取决于当年积雪和季节；即使盛夏，终点也可能明显比谷底冷。</p>
+              <div class="look-for"><b>看什么：</b>湖岸瀑布、雪崩槽与岩壁倒影；不要走上湖冰或靠近落石线。</div>
+            </div>
+          </article>
+
+          <article class="view-card">
+            <figure class="view-image">
+              <img src="assets/glacier/ptarmigan-lake.jpg" alt="Ptarmigan Wall 下方的 Ptarmigan Lake 与高山碎石坡" loading="lazy">
+              <figcaption><a href="https://commons.wikimedia.org/wiki/File:Ptarmigan_Lake_1.jpg" target="_blank" rel="noopener">Texan1969mcg · CC BY-SA 4.0</a></figcaption>
+            </figure>
+            <div class="view-copy">
+              <div class="view-meta"><span class="chip">4.3 mi 单程</span><span class="chip">最佳补给点</span></div>
+              <h3>Ptarmigan Lake</h3>
+              <p>从岔路进入 Ptarmigan Creek 山谷后，树林逐渐让位于草甸与碎石。湖面上方已经能看到通往隧道的长折返线；如果天气转差或腿力不足，在湖边结束仍是一条完整而漂亮的 8.6 mi 往返路线。</p>
+              <div class="look-for"><b>看什么：</b>Ptarmigan Wall、Crowfeet Mountain，以及坡面上的大角羊与山羊。</div>
+            </div>
+          </article>
+
+          <article class="view-card">
+            <figure class="view-image">
+              <img src="assets/glacier/ptarmigan-tunnel.jpg" alt="Ptarmigan Tunnel 石砌入口与打开的铁门" loading="lazy">
+              <figcaption><a href="https://commons.wikimedia.org/wiki/File:Ptarmigan_tunnel.jpg" target="_blank" rel="noopener">National Park Service inventory · Public domain</a></figcaption>
+            </figure>
+            <div class="view-copy">
+              <div class="view-meta"><span class="chip">5.3 mi 单程</span><span class="chip warn">季节性开门</span></div>
+              <h3>Ptarmigan Tunnel</h3>
+              <p>从湖边再爬约 1 mi 的暴露碎石坡，抵达 1930 年凿穿 Ptarmigan Wall 的历史隧道。穿过约 250 ft 的黑暗通道，北侧会突然打开到 Belly River、Elizabeth Lake 与远处加拿大方向的视野。</p>
+              <div class="look-for"><b>关键：</b>铁门通常约 7 月中旬至 9 月下旬开放，以当天 NPS 状态为准；关门时不可翻越或绕行。</div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="choose">
+      <div class="wrap">
+        <header class="section-head">
+          <div>
+            <p class="kicker">Choose your day</p>
+            <h2>到底选哪条？</h2>
+          </div>
+          <p class="section-intro">三条都值得走，但不是同一种体验。Grinnell 胜在一路不断变化；Iceberg Lake 用相对温和的代价换一个震撼终点；Ptarmigan Tunnel 则把体力花在高山历史工程和隧道另一侧的反差上。</p>
+        </header>
+
+        <div class="decision">
+          <article class="decision-card">
+            <div class="num">01</div>
+            <h3>第一次来，只能选一条</h3>
+            <p>优先 Grinnell Glacier。它把 Many Glacier 最有代表性的湖泊、瀑布、岩层、野生动物栖息地与冰川盆地串在同一天里。</p>
+            <ul class="decision-list">
+              <li>想一路都有景，而不只是等终点</li>
+              <li>可以接受较长的暴露路段与湿滑横切</li>
+              <li>愿意早出发，给冰川盆地留足时间</li>
+            </ul>
+          </article>
+          <article class="decision-card">
+            <div class="num">02</div>
+            <h3>偏爱冰湖，或不想爬太狠</h3>
+            <p>选 Iceberg Lake。净爬升低于另外两条，终点的巨大岩壁尺度感很强；如果更喜欢高处视野、历史结构并且体能充足，就改选 Ptarmigan Tunnel。</p>
+            <ul class="decision-list">
+              <li>Iceberg：终点型路线，凉爽、冰雪感强</li>
+              <li>Tunnel：持续爬升，末段无遮蔽但视野更大</li>
+              <li>两条同日合并约 14.8 mi，仅适合强体能与稳定天气</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted" id="safety">
+      <div class="wrap">
+        <header class="section-head">
+          <div>
+            <p class="kicker">Before you leave</p>
+            <h2>出发前四件事</h2>
+          </div>
+          <p class="section-intro">Many Glacier 是真正的熊区和高山环境。热门步道并不等于没有风险：野生动物、积雪、落石、冷水与午后雷暴都可能临时改变计划。</p>
+        </header>
+
+        <div class="safety-grid">
+          <article class="safety-card"><div class="safety-icon" aria-hidden="true">↻</div><h3>当天再查状态</h3><p>步道会因熊活动、积雪、桥梁受损或火情临时关闭。截图 NPS 状态与地图，因为山谷内信号不可靠。</p></article>
+          <article class="safety-card"><div class="safety-icon" aria-hidden="true">◉</div><h3>熊喷随手可取</h3><p>结伴、定期出声，不戴耳机。熊喷应在腰间或胸前而不是包底，并在出发前学会正确使用。</p></article>
+          <article class="safety-card"><div class="safety-icon" aria-hidden="true">≈</div><h3>远离冰水与湿岩</h3><p>冰川湖和溪流全年极冷。不要踩浮冰、雪桥或瀑布旁湿滑岩面；拍照也不要离开正式步道。</p></article>
+          <article class="safety-card"><div class="safety-icon" aria-hidden="true">☼</div><h3>为暴晒和降温都准备</h3><p>带足水、餐食、防晒、保暖层与雨具。上半程树荫有限，终点又可能因风和云层迅速降温。</p></article>
+        </div>
+
+        <div class="alert">
+          <div class="alert-mark" aria-hidden="true">!</div>
+          <div><strong>2026 年 Many Glacier 不需要车辆预约，但拥堵时仍可能临时限制驶入。</strong><span>车位很少；早到、保留步行加程的余量。公园规则会按年度变化，之后出行请重新核对。</span></div>
+          <a href="https://www.nps.gov/glac/planyourvisit/vehicle-reservations2026.htm" target="_blank" rel="noopener">查看 NPS 2026 规则 ↗</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="sources">
+      <div class="wrap source-layout">
+        <div class="source-lede">
+          <p class="kicker">Sources &amp; method</p>
+          <h2>数字从哪里来</h2>
+          <p>距离与爬升优先采用 NPS 当前路线页和 Many Glacier 官方日间徒步资料。观景点里程为沿主线的近似位置，用来建立节奏感，不替代现场路牌、正式地形图或当天关闭通知。时间按一般日间徒步速度并加入短暂停留估算；天气、拥堵、拍照与个人体能都会明显改变结果。</p>
+          <span class="checked">资料核对：2026-08-26</span>
+        </div>
+        <div class="sources">
+          <a class="source" href="https://www.nps.gov/places/grinnell-glacier-trailhead.htm" target="_blank" rel="noopener"><span class="source-num">01</span><span><b>NPS · Grinnell Glacier Trailhead</b><small>2026 路线距离、累计上坡 / 下坡与 boat dropoff 方案</small></span><span class="source-arrow">↗</span></a>
+          <a class="source" href="https://www.nps.gov/places/iceberg-lake-trailhead.htm" target="_blank" rel="noopener"><span class="source-num">02</span><span><b>NPS · Iceberg Lake Trailhead</b><small>4.8 mi 单程、2026 GIS 高程数据与起点位置</small></span><span class="source-arrow">↗</span></a>
+          <a class="source" href="https://www.nps.gov/glac/planyourvisit/hikingmanyglacier.htm" target="_blank" rel="noopener"><span class="source-num">03</span><span><b>NPS · Hiking Many Glacier</b><small>Ptarmigan Falls / Lake / Tunnel 与传统净爬升数据</small></span><span class="source-arrow">↗</span></a>
+          <a class="source" href="https://www.nps.gov/glac/planyourvisit/upload/Many-Glacier.pdf" target="_blank" rel="noopener"><span class="source-num">04</span><span><b>NPS · Many Glacier Trail Map</b><small>官方区域地图、支线关系与目的地位置</small></span><span class="source-arrow">↗</span></a>
+          <a class="source" href="https://www.nps.gov/glac/planyourvisit/trailstatusreports.htm" target="_blank" rel="noopener"><span class="source-num">05</span><span><b>NPS · Trail Status Reports</b><small>出发当天查询积雪、熊活动与临时关闭</small></span><span class="source-arrow">↗</span></a>
+          <a class="source" href="https://www.nps.gov/glac/planyourvisit/bears.htm" target="_blank" rel="noopener"><span class="source-num">06</span><span><b>NPS · Bear Safety</b><small>结伴、制造声响、携带及使用 bear spray 的官方建议</small></span><span class="source-arrow">↗</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-row">
+      <p>本页为中文行程规划参考，不是实时导航或安全保证。里程会因起点、湖岸支线、GPS 采样与临时绕行而不同；请以 NPS 当天公告、现场路牌和个人判断为准。所有图片均在图注中标明作者、许可与来源链接。</p>
+      <a class="back-top" href="#top">回到顶部 ↑</a>
+    </div>
+  </footer>
+</body>
+</html>
