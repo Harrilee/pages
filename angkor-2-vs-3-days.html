@@ -10,6 +10,8 @@
   <meta property="og:type" content="article">
   <meta property="og:image" content="assets/angkor/angkor-wat-sunrise.jpg">
   <title>吴哥窟 2 天 vs 3 天｜行程对比指南</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
   <style>
     :root {
       --ink: #251d17;
@@ -119,6 +121,47 @@
     .stop b { display: block; color: rgba(255,255,255,.91); font-size: 11px; line-height: 1.3; }
     .stop small { display: block; margin-top: 2px; color: rgba(255,255,255,.46); font-size: 9px; }
     .map-legend { margin: 17px 0 0; color: rgba(255,255,255,.48); font-size: 10px; }
+
+    .map-shell { display: grid; grid-template-columns: minmax(0, 1fr) 310px; min-height: 610px; overflow: hidden; background: #f1eadf; border: 1px solid rgba(255,255,255,.14); border-radius: var(--radius-lg); box-shadow: 0 26px 70px rgba(8,23,18,.28); }
+    .map-stage { position: relative; min-height: 610px; background: #d7d1c2; }
+    #angkor-map { position: absolute; inset: 0; min-height: 610px; color: var(--ink); font-family: inherit; }
+    #angkor-map .leaflet-tile-pane { filter: sepia(.14) saturate(.78) contrast(.96); }
+    #angkor-map .leaflet-control-zoom a { color: var(--ink); background: rgba(255,253,248,.94); }
+    #angkor-map .leaflet-control-attribution { color: #5d554d; background: rgba(255,253,248,.86); font-size: 9px; }
+    #angkor-map .leaflet-popup-content-wrapper { color: var(--ink); background: var(--ivory); border-radius: 13px; box-shadow: 0 13px 38px rgba(32,28,22,.22); }
+    #angkor-map .leaflet-popup-tip { background: var(--ivory); }
+    #angkor-map .leaflet-popup-content { width: 250px !important; margin: 15px 17px; font-family: inherit; line-height: 1.45; }
+    .map-popup-image { position: relative; height: 138px; margin: -15px -17px 13px; overflow: hidden; background: var(--paper-deep); border-radius: 13px 13px 0 0; }
+    .map-popup-image img { width: 100%; height: 100%; object-fit: cover; }
+    .map-popup-image small { position: absolute; right: 7px; bottom: 6px; max-width: calc(100% - 14px); padding: 3px 5px; color: rgba(255,255,255,.85); background: rgba(20,15,12,.65); border-radius: 5px; font-size: 7px; line-height: 1.25; }
+    .map-popup-image a { color: inherit; text-decoration: none; }
+    .map-popup-day { display: block; margin-bottom: 4px; color: var(--laterite); font-size: 9px; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
+    .map-popup-title { display: block; font-family: Georgia, "Songti SC", serif; font-size: 17px; }
+    .map-popup-note { display: block; margin-top: 5px; color: var(--muted); font-size: 10px; }
+    .map-popup-link { display: inline-block; margin-top: 9px; color: var(--laterite); font-size: 10px; font-weight: 850; text-decoration: none; }
+    .temple-marker { background: transparent; border: 0; }
+    .temple-marker span { display: grid; place-items: center; width: 30px; height: 30px; color: var(--white); border: 3px solid var(--white); border-radius: 50% 50% 50% 12%; box-shadow: 0 4px 14px rgba(26,24,19,.32); font-size: 10px; font-weight: 900; transform: rotate(-45deg); }
+    .temple-marker b { transform: rotate(45deg); }
+    .city-marker { display: grid; place-items: center; width: 16px; height: 16px; background: var(--ink); border: 3px solid var(--white); border-radius: 50%; box-shadow: 0 3px 10px rgba(26,24,19,.32); }
+    .map-loading { position: absolute; z-index: 500; inset: 0; display: grid; place-items: center; padding: 35px; color: #5f574e; background: #e5ddd0; font-size: 12px; text-align: center; }
+    .map-stage.ready .map-loading { display: none; }
+    .map-sidebar { display: flex; flex-direction: column; padding: 25px; color: var(--ink); background: var(--ivory); }
+    .map-sidebar-label { color: var(--laterite); font-size: 9px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+    .map-sidebar h3 { margin: 6px 0 15px; font-family: Georgia, "Songti SC", serif; font-size: 26px; line-height: 1.08; }
+    .map-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; padding: 5px; background: var(--paper); border-radius: 13px; }
+    .map-toggle button { min-height: 40px; padding: 0 12px; color: var(--muted); background: transparent; border: 0; border-radius: 9px; font: inherit; font-size: 11px; font-weight: 850; cursor: pointer; }
+    .map-toggle button:hover { color: var(--ink); background: rgba(255,255,255,.72); }
+    .map-toggle button[aria-pressed="true"] { color: var(--white); background: var(--moss); box-shadow: 0 6px 16px rgba(32,60,49,.18); }
+    .map-route-list { display: grid; gap: 9px; margin-top: 18px; }
+    .map-day { padding: 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; }
+    .map-day-head { display: flex; align-items: center; gap: 8px; }
+    .map-day-dot { width: 9px; height: 9px; border-radius: 50%; }
+    .map-day strong { font-size: 11px; }
+    .map-day p { margin: 6px 0 0; color: var(--muted); font-size: 9px; line-height: 1.45; }
+    .map-day a { display: inline-block; margin-top: 8px; color: var(--laterite); font-size: 9px; font-weight: 850; text-decoration: none; }
+    .map-help { margin: auto 0 0; padding-top: 18px; color: var(--muted); font-size: 9px; }
+    .map-help b { color: var(--ink); }
+    .map-help a { color: var(--laterite); }
 
     .plan { padding: 78px 0; }
     .plan + .plan { border-top: 1px solid var(--line); }
@@ -242,6 +285,11 @@
       .route-card { grid-template-columns: 1fr; }
       .route-flow { overflow-x: auto; padding-bottom: 7px; }
       .stop { min-width: 96px; }
+      .map-shell { grid-template-columns: 1fr; min-height: 0; }
+      .map-stage, #angkor-map { min-height: 520px; }
+      .map-stage { order: 2; }
+      .map-sidebar { order: 1; }
+      .map-help { margin-top: 16px; }
       .plan { padding: 61px 0; }
       .plan-header { grid-template-columns: 74px 1fr; gap: 18px; }
       .plan-number { font-size: 73px; }
@@ -263,6 +311,7 @@
       .metric { padding-top: 10px; }
       .verdict-main { padding: 29px 23px; }
       .day-image { height: 205px; }
+      .map-stage, #angkor-map { min-height: 430px; }
     }
     @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .day-image img, .photo-card img { transition: none; } }
     @media print { .topbar { position: static; } .hero { min-height: 560px; } .section, .plan { padding: 48px 0; } .day-card, .compare { box-shadow: none; } }
@@ -335,8 +384,25 @@
     <section class="section dark" id="route-map" aria-labelledby="map-title">
       <div class="wrap">
         <div class="section-head">
-          <div><p class="kicker">Route map · 路线示意</p><h2 id="map-title">不是少一天，<br>而是把两条线压成一条。</h2></div>
-          <p class="section-intro">两天版的第二天把外圈女王宫与大圈北线串在一起；三天版则把“王城”“森林与水”“红砂岩”拆开。下图是行程逻辑，不按真实比例。</p>
+          <div><p class="kicker">Interactive map · 真实地图</p><h2 id="map-title">所有停靠点，<br>放回真实地理位置。</h2></div>
+          <p class="section-intro">切换两天或三天方案，地图会显示每天的颜色、顺序与寺庙标注。线路连接表示游览顺序，并非逐弯导航道路；点标记可直接跳到 Google Maps。</p>
+        </div>
+        <div class="map-shell">
+          <div class="map-stage" id="map-stage">
+            <div id="angkor-map" role="region" aria-label="吴哥窟两天与三天行程互动地图" tabindex="0"></div>
+            <div class="map-loading">正在加载地图…<br>若地图服务暂时不可用，下方仍保留完整路线顺序。</div>
+            <noscript><p class="map-loading">需要启用 JavaScript 才能查看互动地图；下方路线顺序仍可正常阅读。</p></noscript>
+          </div>
+          <aside class="map-sidebar" aria-label="地图路线选择">
+            <span class="map-sidebar-label">Choose a plan</span>
+            <h3>切换地图行程</h3>
+            <div class="map-toggle" role="group" aria-label="选择两天或三天方案">
+              <button type="button" data-map-plan="2" aria-pressed="false">2 天路线</button>
+              <button type="button" data-map-plan="3" aria-pressed="true">3 天路线</button>
+            </div>
+            <div class="map-route-list" id="map-route-list" aria-live="polite"></div>
+            <p class="map-help"><b>怎么用：</b>光标悬停在彩色编号上会出现照片气泡；触屏设备点按即可。点“Google Maps 打开”可查看该日路线。地图底图与地点来自 <a href="https://www.openstreetmap.org/" target="_blank" rel="noopener">OpenStreetMap</a>。</p>
+          </aside>
         </div>
         <div class="route-board">
           <article class="route-card">
@@ -362,7 +428,7 @@
             </div>
           </article>
         </div>
-        <p class="map-legend">● 金色节点为主要停靠点；每个节点之间通常还包含 10–40 分钟车程。女王宫距核心园区较远，两天版第二日务必用汽车，不建议全程嘟嘟车。</p>
+        <p class="map-legend">地图标注按公开地理坐标绘制；彩色连线只表达建议访问顺序，不替代实时道路导航。每个节点之间通常还有 10–40 分钟车程。女王宫距核心园区较远，两天版第二日建议用汽车。</p>
       </div>
     </section>
 
@@ -572,5 +638,168 @@
   <footer>
     <div class="wrap footer-row"><p>这是一份行程设计指南，不是官方开放承诺。寺庙修缮、宗教活动、天气与人流都可能改变当天动线；尊重现场指引，并把“少看一座、好好看一座”当作正常选择。</p><a class="back-top" href="#top">回到顶部 ↑</a></div>
   </footer>
+  <script>
+    window.addEventListener("DOMContentLoaded", function () {
+      var stage = document.getElementById("map-stage");
+      var routeList = document.getElementById("map-route-list");
+      if (!stage || !routeList) return;
+
+      if (typeof L === "undefined") {
+        stage.querySelector(".map-loading").innerHTML = "地图组件暂时未能载入。<br>请检查网络，或使用下方路线顺序。";
+        return;
+      }
+
+      var places = {
+        siem: { name: "暹粒市区", en: "Siem Reap", lat: 13.3619, lng: 103.8590, note: "住宿与每日出发基点，餐厅和夜市也最集中。", image: "assets/angkor/siem-reap.jpg", credit: "Bahnfrend · CC BY-SA 4.0", source: "https://commons.wikimedia.org/wiki/File:Siem_Reap_River,_Siem_Reap,_2018_(03).jpg" },
+        angkorWat: { name: "吴哥窟", en: "Angkor Wat", lat: 13.4125, lng: 103.8670, note: "日出、回廊浮雕与中央主殿，是整个遗址群的第一张名片。", image: "assets/angkor/angkor-wat-sunrise.jpg", credit: "Christophe95 · CC BY-SA 4.0", source: "https://commons.wikimedia.org/wiki/File:Angkor_Wat_at_sunrise_1.jpg" },
+        southGate: { name: "吴哥通南门", en: "South Gate", lat: 13.4208, lng: 103.8596, note: "护城河两侧排列神魔搅海雕像，门塔上方是四面巨脸。", image: "assets/angkor/south-gate.jpg", credit: "Jakub Hałun · CC BY-SA 4.0", source: "https://commons.wikimedia.org/wiki/File:20171126_South_gate_of_Angkor_Thom_4733_DxO.jpg" },
+        bayon: { name: "巴戎寺", en: "Bayon", lat: 13.4414, lng: 103.8585, note: "数十座面塔构成著名的“高棉微笑”，底层浮雕记录市井生活。", image: "assets/angkor/bayon.jpg", credit: "Jakub Hałun · CC BY-SA 4.0", source: "https://commons.wikimedia.org/wiki/File:20171127_Bayon_Temple_Angkor_Thom_4754_DxO.jpg" },
+        baphuon: { name: "巴方寺／王宫区", en: "Baphuon", lat: 13.4455, lng: 103.8568, note: "高大的寺山连着王宫、象台与癞王台，适合用步行串联。", image: "assets/angkor/baphuon.jpg", credit: "Marcin Konsek · CC BY-SA 4.0", source: "https://commons.wikimedia.org/wiki/File:2016_Angkor,_Angkor_Thom,_Baphuon_(05).jpg" },
+        taProhm: { name: "塔普伦寺", en: "Ta Prohm", lat: 13.4349, lng: 103.8895, note: "巨树根系跨过围墙与廊道，是自然吞没建筑最具张力的一站。", image: "assets/angkor/ta-prohm.jpg", credit: "Balon Greyjoy · Public domain", source: "https://commons.wikimedia.org/wiki/File:20191210_Ta_Prohm_sprung_tree_roots-1.jpg" },
+        banteayKdei: { name: "斑黛喀蒂", en: "Banteay Kdei", lat: 13.4293, lng: 103.8987, note: "布局松弛、游客较少的森林寺院，适合接在塔普伦之后。", image: "assets/angkor/banteay-kdei.jpg", credit: "Marcin Konsek · CC BY-SA 4.0", source: "https://commons.wikimedia.org/wiki/File:2016_Angkor,_Banteay_Kdei_(09).jpg" },
+        banteaySrei: { name: "女王宫", en: "Banteay Srei", lat: 13.5989, lng: 103.9639, note: "红砂岩门楣与山墙雕刻极为精细，早晨斜光最能显出层次。", image: "assets/angkor/banteay-srei.jpg", credit: "Pierre André Leclercq · CC BY-SA 4.0", source: "https://commons.wikimedia.org/wiki/File:Cambodge_Banteay_Srei_Temple_(2).jpg" },
+        banteaySamre: { name: "班蒂色玛寺", en: "Banteay Samre", lat: 13.4427, lng: 103.9586, note: "围墙和回廊保存完整，建筑语言与吴哥窟相呼应。", image: "assets/angkor/banteay-samre.jpg", credit: "yeowatzup · CC BY 2.0", source: "https://commons.wikimedia.org/wiki/File:Banteay_Samre,_Cambodia_(2211427527).jpg" },
+        preahKhan: { name: "圣剑寺", en: "Preah Khan", lat: 13.4618, lng: 103.8720, note: "沿长轴穿过院落、门廊和树根遗迹，空间变化非常丰富。", image: "assets/angkor/preah-khan.jpg", credit: "Diego Delso · CC BY-SA 3.0", source: "https://commons.wikimedia.org/wiki/File:Preah_Khan,_Angkor,_Camboya,_2013-08-17,_DD_26.JPG" },
+        neakPean: { name: "涅槃宫", en: "Neak Pean", lat: 13.4632, lng: 103.8947, note: "穿过水库栈道抵达中央水殿，能直观看见吴哥的水利尺度。", image: "assets/angkor/neak-pean.jpg", credit: "Marcin Konsek · CC BY-SA 4.0", source: "https://commons.wikimedia.org/wiki/File:2016_Angkor,_Neak_Pean_(01).jpg" },
+        taSom: { name: "塔逊寺", en: "Ta Som", lat: 13.4645, lng: 103.9137, note: "体量不大，尽头树根覆盖的东门是最有辨识度的画面。", image: "assets/angkor/ta-som.jpg", credit: "Marcin Konsek · CC BY-SA 4.0", source: "https://commons.wikimedia.org/wiki/File:2016_Angkor,_Ta_Som_(02).jpg" },
+        eastMebon: { name: "东梅奔", en: "East Mebon", lat: 13.4465, lng: 103.9198, note: "曾位于巨大水池中央的砖塔，台基四角仍有石象守护。", image: "assets/angkor/east-mebon.jpg", credit: "McKay Savage · CC BY 2.0", source: "https://commons.wikimedia.org/wiki/File:Cambodia_08_-_196_-_East_Mebon_(3239710092).jpg" },
+        preRup: { name: "比粒寺", en: "Pre Rup", lat: 13.4348, lng: 103.9210, note: "红砖寺山在傍晚会染上暖色，是大圈常见的收尾点。", image: "assets/angkor/pre-rup-sunset.jpg", credit: "Mig Gilbert · CC BY-SA 2.0", source: "https://commons.wikimedia.org/wiki/File:Pre_Rup_at_sunset_(39444613325).jpg" },
+        preahKo: { name: "神牛寺", en: "Preah Ko", lat: 13.3431, lng: 103.9721, note: "罗洛士遗址群的早期砖寺，门楣与灰泥装饰保存了古老风格。", image: "assets/angkor/preah-ko.jpg", credit: "Dmitry A. Mottl · CC BY-SA 4.0", source: "https://commons.wikimedia.org/wiki/File:Preah_Ko.JPG" },
+        bakong: { name: "巴孔寺", en: "Bakong", lat: 13.3352, lng: 103.9740, note: "早期大型寺山，层级清晰，能看出后来吴哥建筑的雏形。", image: "assets/angkor/bakong.jpg", credit: "Photo Dharma · CC BY 2.0", source: "https://commons.wikimedia.org/wiki/File:Roulos_Group_-_005_Bakong_(8587796725).jpg" }
+      };
+
+      var plans = {
+        "2": [
+          { label: "Day 1 · 三大名片", color: "#b95739", stops: ["siem", "angkorWat", "southGate", "bayon", "baphuon", "taProhm", "banteayKdei", "siem"], summary: "吴哥窟 → 吴哥通 → 塔普伦 → 斑黛喀蒂" },
+          { label: "Day 2 · 外圈＋大圈", color: "#d99a32", stops: ["siem", "banteaySrei", "banteaySamre", "preahKhan", "neakPean", "taSom", "eastMebon", "preRup", "siem"], summary: "女王宫 → 班蒂色玛 → 圣剑寺 → 涅槃宫 → 比粒寺" }
+        ],
+        "3": [
+          { label: "Day 1 · 日出＋森林", color: "#d78c31", stops: ["siem", "angkorWat", "taProhm", "banteayKdei", "siem"], summary: "吴哥窟 → 塔普伦 → 斑黛喀蒂" },
+          { label: "Day 2 · 王城＋大圈", color: "#4f8a69", stops: ["siem", "southGate", "bayon", "baphuon", "preahKhan", "neakPean", "taSom", "eastMebon", "siem"], summary: "南门 → 巴戎 → 王宫区 → 圣剑寺 → 涅槃宫" },
+          { label: "Day 3 · 红砂岩＋早期都城", color: "#95628e", stops: ["siem", "banteaySrei", "banteaySamre", "preahKo", "bakong", "siem"], summary: "女王宫 → 班蒂色玛 → 神牛寺 → 巴孔寺" }
+        ]
+      };
+
+      function placeSearchUrl(place) {
+        return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(place.lat + "," + place.lng);
+      }
+
+      function routeUrl(route) {
+        var points = route.stops.map(function (id) { return places[id]; });
+        var params = new URLSearchParams({
+          api: "1",
+          origin: points[0].lat + "," + points[0].lng,
+          destination: points[points.length - 1].lat + "," + points[points.length - 1].lng,
+          travelmode: "driving",
+          waypoints: points.slice(1, -1).map(function (place) { return place.lat + "," + place.lng; }).join("|")
+        });
+        return "https://www.google.com/maps/dir/?" + params.toString();
+      }
+
+      var map = L.map("angkor-map", { scrollWheelZoom: false, preferCanvas: true, zoomControl: true }).setView([13.445, 103.895], 11);
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 18,
+        attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors"
+      }).addTo(map);
+      L.control.scale({ imperial: false, position: "bottomleft" }).addTo(map);
+
+      var routeLayer = L.featureGroup().addTo(map);
+      var cityIcon = L.divIcon({ className: "city-marker", html: "", iconSize: [16, 16], iconAnchor: [8, 8] });
+
+      function markerIcon(number, color) {
+        return L.divIcon({
+          className: "temple-marker",
+          html: "<span style=\"background:" + color + "\"><b>" + number + "</b></span>",
+          iconSize: [30, 30],
+          iconAnchor: [15, 30],
+          popupAnchor: [0, -28]
+        });
+      }
+
+      function popupHtml(place, dayLabel) {
+        return "<figure class=\"map-popup-image\"><img src=\"" + place.image + "\" alt=\"" + place.name + "实景照片\"><small><a href=\"" + place.source + "\" target=\"_blank\" rel=\"noopener\">" + place.credit + "</a></small></figure>" +
+          "<span class=\"map-popup-day\">" + dayLabel + "</span>" +
+          "<strong class=\"map-popup-title\">" + place.name + "</strong>" +
+          "<span class=\"map-popup-note\">" + place.en + "</span>" +
+          "<span class=\"map-popup-note\">" + place.note + "</span>" +
+          "<a class=\"map-popup-link\" href=\"" + placeSearchUrl(place) + "\" target=\"_blank\" rel=\"noopener\">Google Maps 查看地点 ↗</a>";
+      }
+
+      function enableHoverPreview(marker) {
+        var closeTimer;
+        marker._previewPinned = false;
+        marker.on("mouseover", function () {
+          window.clearTimeout(closeTimer);
+          marker.openPopup();
+        });
+        marker.on("mouseout", function () {
+          closeTimer = window.setTimeout(function () {
+            var popupElement = marker.getPopup() && marker.getPopup().getElement();
+            if (!marker._previewPinned && (!popupElement || !popupElement.matches(":hover"))) marker.closePopup();
+          }, 220);
+        });
+        marker.on("click", function () {
+          marker._previewPinned = true;
+          marker.openPopup();
+        });
+        marker.on("popupopen", function () {
+          var popupElement = marker.getPopup().getElement();
+          if (!popupElement || popupElement.dataset.hoverReady) return;
+          popupElement.dataset.hoverReady = "true";
+          popupElement.addEventListener("mouseenter", function () { window.clearTimeout(closeTimer); });
+          popupElement.addEventListener("mouseleave", function () {
+            if (!marker._previewPinned) marker.closePopup();
+          });
+        });
+        marker.on("popupclose", function () { marker._previewPinned = false; });
+        return marker;
+      }
+
+      function drawPlan(planKey) {
+        routeLayer.clearLayers();
+        routeList.innerHTML = "";
+        var routes = plans[planKey];
+        var city = places.siem;
+        enableHoverPreview(
+          L.marker([city.lat, city.lng], { icon: cityIcon, title: city.name })
+            .bindPopup(popupHtml(city, "每日起点"), { maxWidth: 284 })
+        ).addTo(routeLayer);
+
+        routes.forEach(function (route) {
+          var latLngs = route.stops.map(function (id) { return [places[id].lat, places[id].lng]; });
+          L.polyline(latLngs, { color: route.color, weight: 4, opacity: .88, lineCap: "round", lineJoin: "round" }).addTo(routeLayer);
+
+          route.stops.slice(1, -1).forEach(function (id, index) {
+            var place = places[id];
+            enableHoverPreview(
+              L.marker([place.lat, place.lng], { icon: markerIcon(index + 1, route.color), title: place.name })
+                .bindPopup(popupHtml(place, route.label), { maxWidth: 284 })
+            ).addTo(routeLayer);
+          });
+
+          var item = document.createElement("div");
+          item.className = "map-day";
+          item.innerHTML = "<div class=\"map-day-head\"><span class=\"map-day-dot\" style=\"background:" + route.color + "\"></span><strong>" + route.label + "</strong></div>" +
+            "<p>" + route.summary + "</p>" +
+            "<a href=\"" + routeUrl(route) + "\" target=\"_blank\" rel=\"noopener\">Google Maps 打开该日路线 ↗</a>";
+          routeList.appendChild(item);
+        });
+
+        var bounds = routeLayer.getBounds();
+        if (bounds.isValid()) map.fitBounds(bounds, { padding: [38, 38], maxZoom: 12 });
+        document.querySelectorAll("[data-map-plan]").forEach(function (button) {
+          button.setAttribute("aria-pressed", button.getAttribute("data-map-plan") === planKey ? "true" : "false");
+        });
+      }
+
+      document.querySelectorAll("[data-map-plan]").forEach(function (button) {
+        button.addEventListener("click", function () { drawPlan(button.getAttribute("data-map-plan")); });
+      });
+
+      drawPlan("3");
+      stage.classList.add("ready");
+      window.setTimeout(function () { map.invalidateSize(); }, 120);
+    });
+  </script>
 </body>
 </html>
