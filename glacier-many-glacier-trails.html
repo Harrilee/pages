@@ -145,6 +145,33 @@
     .choice-panel .small { color: var(--glacier); font-size: 11px; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
     .choice-panel strong { display: block; margin: 7px 0; font-family: Georgia, "Songti SC", serif; font-size: 25px; line-height: 1.1; }
     .choice-panel p { margin: 0; color: rgba(255, 255, 255, .65); font-size: 12px; }
+    .boat-jump { display: inline-flex; margin-top: 13px; color: var(--glacier); font-size: 12px; font-weight: 850; text-decoration: none; }
+    .boat-jump:hover { color: var(--white); }
+
+    .boat-guide { margin: 0 0 32px; overflow: hidden; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: 0 14px 42px rgba(11, 41, 38, .08); }
+    .boat-guide-head { display: flex; justify-content: space-between; align-items: center; gap: 28px; padding: 27px 30px; color: var(--white); background: var(--pine-900); }
+    .boat-guide-head .kicker { margin-bottom: 6px; color: var(--glacier); }
+    .boat-guide-head h3 { margin: 0; font-family: Georgia, "Songti SC", "STSong", serif; font-size: clamp(25px, 3.2vw, 36px); font-weight: 600; letter-spacing: -.025em; line-height: 1.1; }
+    .sold-out-badge { flex: 0 0 auto; min-width: 150px; padding: 10px 15px; color: var(--white); background: var(--red); border: 1px solid rgba(255, 255, 255, .24); border-radius: var(--radius-sm); text-align: center; transform: rotate(-1deg); box-shadow: 0 8px 20px rgba(7, 30, 28, .23); }
+    .sold-out-badge strong { display: block; font-size: 18px; letter-spacing: .1em; line-height: 1.05; }
+    .sold-out-badge span { display: block; margin-top: 4px; color: #ffe8e2; font-size: 10px; font-weight: 800; }
+    .boat-guide-grid { display: grid; grid-template-columns: 1.15fr .85fr; }
+    .booking-steps { display: grid; gap: 0; margin: 0; padding: 8px 30px; list-style: none; counter-reset: boat-step; }
+    .booking-steps li { display: grid; grid-template-columns: 42px 1fr; gap: 13px; align-items: start; padding: 17px 0; border-bottom: 1px solid var(--line); counter-increment: boat-step; }
+    .booking-steps li:last-child { border-bottom: 0; }
+    .booking-steps li::before { content: "0" counter(boat-step); display: grid; place-items: center; width: 36px; height: 36px; color: var(--pine-950); background: var(--sky); border-radius: 50%; font-family: Georgia, serif; font-size: 13px; font-weight: 800; }
+    .booking-steps b { display: block; font-size: 14px; }
+    .booking-steps p { margin: 3px 0 0; color: var(--stone); font-size: 11px; }
+    .boat-selection { margin: 18px; padding: 23px; background: var(--paper); border-radius: var(--radius-md); }
+    .boat-selection-label { color: var(--glacier-deep); font-size: 10px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .boat-selection dl { display: grid; gap: 8px; margin: 15px 0 18px; }
+    .boat-selection dl div { display: flex; justify-content: space-between; gap: 20px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+    .boat-selection dt { color: var(--stone); font-size: 11px; }
+    .boat-selection dd { margin: 0; font-size: 12px; font-weight: 850; text-align: right; }
+    .sold-out-callout { margin: 0 0 16px; padding: 13px 14px; color: #73351f; background: #fff2e8; border: 1px solid #f1c3aa; border-radius: var(--radius-sm); font-size: 11px; }
+    .sold-out-callout strong { display: block; margin-bottom: 3px; color: var(--red); font-size: 12px; }
+    .booking-button { width: 100%; min-height: 44px; }
+    .boat-fineprint { margin: 12px 0 0; color: var(--stone); font-size: 10px; }
 
     .view-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; }
     .view-card { min-width: 0; grid-column: span 6; overflow: hidden; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: 0 10px 35px rgba(11, 41, 38, .07); }
@@ -222,6 +249,7 @@
       .quick-grid { grid-template-columns: 1fr; margin-top: 0; padding-top: 20px; }
       .quick-card { min-height: 0; }
       .section-head, .trail-summary, .source-layout { grid-template-columns: 1fr; gap: 20px; }
+      .boat-guide-grid { grid-template-columns: 1fr; }
       .view-card, .view-card.wide { grid-column: span 12; display: block; }
       .view-image, .view-card.wide .view-image { min-height: 380px; }
       .safety-grid { grid-template-columns: repeat(2, 1fr); }
@@ -245,6 +273,8 @@
       .rail-stop span { margin-top: 1px; }
       .branch-map { grid-template-columns: 1fr; }
       .fork { margin: -4px auto; }
+      .boat-guide-head { align-items: flex-start; padding: 24px; }
+      .booking-steps { padding-inline: 24px; }
       .decision { grid-template-columns: 1fr; }
       .decision-card { min-height: 0; padding: 27px; }
       .safety-grid { grid-template-columns: 1fr; }
@@ -253,6 +283,11 @@
       .view-image, .view-card.wide .view-image { min-height: 300px; }
       .footer-row { display: block; }
       .back-top { display: inline-block; margin-top: 15px; }
+    }
+    @media (max-width: 500px) {
+      .boat-guide-head { display: block; }
+      .sold-out-badge { width: fit-content; margin-top: 18px; }
+      .boat-selection { margin: 0 14px 14px; }
     }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
@@ -370,8 +405,45 @@
             <span class="small">Boat option</span>
             <strong>坐船可减至约 7.4 mi 往返</strong>
             <p>从 Many Glacier Hotel 依次横渡 Swiftcurrent Lake 与 Lake Josephine；NPS 2026 数据显示下船后到终点单程约 3.7 mi。船票收费、旺季宜预订，且不要把末班船当成唯一返程方案。</p>
+            <a class="boat-jump" href="#boat-ticket">查看购票方式与售罄状态 ↓</a>
           </aside>
         </div>
+
+        <section class="boat-guide" id="boat-ticket" aria-labelledby="boat-ticket-title">
+          <header class="boat-guide-head">
+            <div>
+              <p class="kicker">Many Glacier Boat Ticket</p>
+              <h3 id="boat-ticket-title">给 Grinnell 徒步者的船票购买方式</h3>
+            </div>
+            <div class="sold-out-badge" aria-label="2026 年 9 月 6 日至 7 日推荐船班已售罄">
+              <strong>SOLD OUT</strong>
+              <span>已售罄 · 9/6–9/7</span>
+            </div>
+          </header>
+          <div class="boat-guide-grid">
+            <ol class="booking-steps" aria-label="船票购买步骤">
+              <li><div><b>进入 Glacier Park Boat Company 官方订票页</b><p>不要选 St. Mary 或 Two Medicine；这条徒步使用 Many Glacier 的双湖船线。</p></div></li>
+              <li><div><b>Location 选择 Many Glacier</b><p>上船地点在 Many Glacier Hotel 后方码头；建议至少提前 1 小时抵达停车。</p></div></li>
+              <li><div><b>Tour 选择 Round Trip</b><p>Round Trip 才包含早上去 Lake Josephine 湖头与徒步后的返程；One-Way Return 不能用作早上去程。</p></div></li>
+              <li><div><b>优先 8:30 AM，9:00 AM 作为备选</b><p>8:30 班次会在湖头让所有乘客下船，很适合直接开始 Grinnell Glacier 徒步。</p></div></li>
+            </ol>
+            <aside class="boat-selection" aria-label="推荐船票选项与当前状态">
+              <div class="boat-selection-label">订票时这样选</div>
+              <dl>
+                <div><dt>Company</dt><dd>Glacier Park Boat Company</dd></div>
+                <div><dt>Location</dt><dd>Many Glacier</dd></div>
+                <div><dt>Tour</dt><dd>Round Trip</dd></div>
+                <div><dt>Departure</dt><dd>8:30 AM → 9:00 AM</dd></div>
+              </dl>
+              <div class="sold-out-callout">
+                <strong>Labor Day 行程提醒：SOLD OUT / 已售罄</strong>
+                目前 2026 年 9 月 6–7 日推荐的 8:30 / 9:00 AM Round Trip 已无票。仍可通过官方页面刷新退票；无票时按全程 10.0 mi 步行方案准备。
+              </div>
+              <a class="button booking-button" href="https://reserve.glacierparkboats.com/index.php" target="_blank" rel="noopener">打开官方订票页 ↗</a>
+              <p class="boat-fineprint">Round Trip 的回程不锁定具体班次，在 Lake Josephine 湖头按先到先得上船；高峰期可能等待，错过末班船则需步行约 2 mi 回酒店。</p>
+            </aside>
+          </div>
+        </section>
 
         <div class="view-grid">
           <article class="view-card">
@@ -606,6 +678,7 @@
           <a class="source" href="https://www.nps.gov/glac/planyourvisit/upload/Many-Glacier.pdf" target="_blank" rel="noopener"><span class="source-num">04</span><span><b>NPS · Many Glacier Trail Map</b><small>官方区域地图、支线关系与目的地位置</small></span><span class="source-arrow">↗</span></a>
           <a class="source" href="https://www.nps.gov/glac/planyourvisit/trailstatusreports.htm" target="_blank" rel="noopener"><span class="source-num">05</span><span><b>NPS · Trail Status Reports</b><small>出发当天查询积雪、熊活动与临时关闭</small></span><span class="source-arrow">↗</span></a>
           <a class="source" href="https://www.nps.gov/glac/planyourvisit/bears.htm" target="_blank" rel="noopener"><span class="source-num">06</span><span><b>NPS · Bear Safety</b><small>结伴、制造声响、携带及使用 bear spray 的官方建议</small></span><span class="source-arrow">↗</span></a>
+          <a class="source" href="https://www.glacierparkboats.com/tours-rentals/many-glacier/" target="_blank" rel="noopener"><span class="source-num">07</span><span><b>Glacier Park Boat Company · Many Glacier</b><small>2026 船班、Round Trip 规则、返程方式与官方订票入口</small></span><span class="source-arrow">↗</span></a>
         </div>
       </div>
     </section>
