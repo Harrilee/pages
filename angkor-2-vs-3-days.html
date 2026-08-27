@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="吴哥窟 2 天与 3 天行程对比：逐日时间表、路线示意、景点取舍、门票与机场交通提醒。">
+  <meta name="theme-color" content="#251d17">
+  <meta property="og:title" content="吴哥窟 2 天还是 3 天？行程对比指南">
+  <meta property="og:description" content="把两种走法摊开比较：两天看核心，三天看层次。">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="assets/angkor/angkor-wat-sunrise.jpg">
+  <title>吴哥窟 2 天 vs 3 天｜行程对比指南</title>
+  <style>
+    :root {
+      --ink: #251d17;
+      --muted: #71675e;
+      --paper: #f7f1e7;
+      --paper-deep: #eee3d2;
+      --ivory: #fffdf8;
+      --laterite: #a74c2e;
+      --laterite-deep: #74301f;
+      --saffron: #efa73c;
+      --moss: #385747;
+      --moss-deep: #203c31;
+      --line: rgba(74, 48, 31, .16);
+      --white: #fff;
+      --shadow: 0 24px 70px rgba(64, 38, 24, .14);
+      --radius-lg: 32px;
+      --radius-md: 20px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 82px; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+    img { display: block; width: 100%; }
+    a { color: inherit; }
+    a:focus-visible { outline: 3px solid var(--saffron); outline-offset: 4px; }
+
+    .topbar { position: sticky; z-index: 20; top: 0; display: flex; justify-content: space-between; align-items: center; gap: 22px; min-height: 68px; padding: 10px max(22px, calc((100vw - 1180px) / 2)); color: var(--white); background: rgba(32, 24, 19, .92); border-bottom: 1px solid rgba(255,255,255,.1); backdrop-filter: blur(16px); }
+    .brand { display: flex; align-items: center; gap: 11px; color: var(--white); font-weight: 850; text-decoration: none; }
+    .brand-mark { display: grid; place-items: center; width: 35px; height: 35px; color: var(--ink); background: var(--saffron); border-radius: 50% 50% 45% 55%; font-family: Georgia, serif; }
+    .topnav { display: flex; gap: 5px; align-items: center; }
+    .topnav a { padding: 8px 11px; color: rgba(255,255,255,.72); border-radius: 999px; font-size: 12px; font-weight: 750; text-decoration: none; }
+    .topnav a:hover { color: var(--white); background: rgba(255,255,255,.09); }
+    .topnav .pick { color: var(--ink); background: var(--saffron); }
+
+    .hero { position: relative; isolation: isolate; min-height: min(760px, calc(100vh - 68px)); display: grid; align-items: end; overflow: hidden; color: var(--white); background: #211812; }
+    .hero > img { position: absolute; z-index: -2; inset: 0; height: 100%; object-fit: cover; object-position: 50% 51%; }
+    .hero::after { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(180deg, rgba(24,16,12,.03) 8%, rgba(24,16,12,.18) 42%, rgba(24,16,12,.94) 100%), linear-gradient(90deg, rgba(23,15,11,.58), transparent 66%); }
+    .hero-inner { width: min(1180px, calc(100% - 44px)); margin: 0 auto; padding: 110px 0 62px; }
+    .eyebrow { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; color: #ffd58e; font-size: 11px; font-weight: 850; letter-spacing: .17em; text-transform: uppercase; }
+    .eyebrow::before { content: ""; width: 42px; height: 2px; background: currentColor; }
+    h1 { max-width: 900px; margin: 0; font-family: Georgia, "Songti SC", "STSong", serif; font-size: clamp(45px, 7.5vw, 88px); font-weight: 500; letter-spacing: -.055em; line-height: .98; text-wrap: balance; }
+    .hero-lede { max-width: 710px; margin: 23px 0 28px; color: rgba(255,255,255,.8); font-size: clamp(16px, 2vw, 20px); }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 17px; color: var(--ink); background: var(--saffron); border: 1px solid transparent; border-radius: 999px; font-size: 13px; font-weight: 850; text-decoration: none; }
+    .button.ghost { color: var(--white); background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.26); }
+    .photo-credit { position: absolute; right: max(16px, calc((100vw - 1180px) / 2)); bottom: 15px; color: rgba(255,255,255,.5); font-size: 9px; }
+
+    .compare-wrap { width: min(1180px, calc(100% - 44px)); margin: -30px auto 0; position: relative; z-index: 3; padding-bottom: 82px; }
+    .compare { display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; background: var(--ivory); border: 1px solid rgba(255,255,255,.85); border-radius: var(--radius-lg); box-shadow: var(--shadow); }
+    .option { min-width: 0; padding: 34px; }
+    .option + .option { color: var(--white); background: var(--moss-deep); }
+    .option-top { display: flex; align-items: start; justify-content: space-between; gap: 18px; }
+    .day-number { font-family: Georgia, serif; font-size: 66px; line-height: .82; letter-spacing: -.08em; }
+    .option + .option .day-number { color: #f8c873; }
+    .tag { padding: 6px 10px; color: var(--laterite); background: #f8e7dc; border-radius: 999px; font-size: 10px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+    .option + .option .tag { color: var(--moss-deep); background: var(--saffron); }
+    .option h2 { margin: 19px 0 8px; font-family: Georgia, "Songti SC", serif; font-size: 31px; line-height: 1.08; }
+    .option p { min-height: 52px; margin: 0; color: var(--muted); font-size: 13px; }
+    .option + .option p { color: rgba(255,255,255,.67); }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-top: 22px; }
+    .metric { padding-top: 13px; border-top: 1px solid var(--line); }
+    .option + .option .metric { border-color: rgba(255,255,255,.16); }
+    .metric strong { display: block; font-size: 17px; letter-spacing: -.03em; white-space: nowrap; }
+    .metric span { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; }
+    .option + .option .metric span { color: rgba(255,255,255,.5); }
+
+    .section { padding: 92px 0; }
+    .section.ivory { background: var(--ivory); }
+    .section.dark { color: var(--white); background: var(--moss-deep); }
+    .wrap { width: min(1180px, calc(100% - 44px)); margin: 0 auto; }
+    .section-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .65fr); gap: 48px; align-items: end; margin-bottom: 38px; }
+    .kicker { margin: 0 0 9px; color: var(--laterite); font-size: 11px; font-weight: 850; letter-spacing: .15em; text-transform: uppercase; }
+    .dark .kicker { color: #f7c66d; }
+    .section h2 { margin: 0; font-family: Georgia, "Songti SC", "STSong", serif; font-size: clamp(35px, 5vw, 58px); font-weight: 500; letter-spacing: -.045em; line-height: 1.05; text-wrap: balance; }
+    .section-intro { margin: 0; color: var(--muted); font-size: 14px; }
+    .dark .section-intro { color: rgba(255,255,255,.62); }
+
+    .verdict-grid { display: grid; grid-template-columns: 1.25fr .75fr; gap: 18px; }
+    .verdict-main { position: relative; overflow: hidden; min-height: 350px; padding: 37px; color: var(--white); background: var(--laterite-deep); border-radius: var(--radius-lg); }
+    .verdict-main::after { content: "3"; position: absolute; right: -10px; bottom: -95px; color: rgba(255,255,255,.075); font-family: Georgia, serif; font-size: 350px; line-height: 1; }
+    .verdict-main .label { display: inline-flex; padding: 6px 10px; color: var(--ink); background: var(--saffron); border-radius: 999px; font-size: 10px; font-weight: 900; letter-spacing: .1em; }
+    .verdict-main h3 { position: relative; z-index: 1; max-width: 570px; margin: 24px 0 13px; font-family: Georgia, "Songti SC", serif; font-size: clamp(29px, 4vw, 46px); font-weight: 500; line-height: 1.08; }
+    .verdict-main p { position: relative; z-index: 1; max-width: 600px; margin: 0; color: rgba(255,255,255,.7); font-size: 14px; }
+    .verdict-side { display: grid; gap: 14px; }
+    .mini-verdict { padding: 25px; background: var(--ivory); border: 1px solid var(--line); border-radius: var(--radius-md); }
+    .mini-verdict strong { display: block; margin-bottom: 7px; font-family: Georgia, "Songti SC", serif; font-size: 21px; }
+    .mini-verdict p { margin: 0; color: var(--muted); font-size: 12px; }
+    .mini-verdict.accent { background: #f2e0c6; border-color: #e5c59a; }
+
+    .ticket-strip { display: grid; grid-template-columns: auto 1fr auto; gap: 20px; align-items: center; margin-top: 18px; padding: 22px 25px; color: var(--white); background: var(--moss); border-radius: var(--radius-md); }
+    .ticket-price { color: #ffd58e; font-family: Georgia, serif; font-size: 43px; line-height: 1; }
+    .ticket-copy strong { display: block; font-size: 14px; }
+    .ticket-copy span { display: block; margin-top: 3px; color: rgba(255,255,255,.62); font-size: 11px; }
+    .ticket-note { max-width: 245px; color: rgba(255,255,255,.75); font-size: 11px; text-align: right; }
+
+    .route-board { display: grid; gap: 15px; margin-top: 38px; }
+    .route-card { display: grid; grid-template-columns: 190px 1fr; gap: 22px; align-items: center; padding: 24px; background: rgba(255,255,255,.065); border: 1px solid rgba(255,255,255,.12); border-radius: var(--radius-md); }
+    .route-card.recommended { background: #2c5b47; border-color: rgba(247,198,109,.52); }
+    .route-title span { display: block; color: #f7c66d; font-size: 10px; font-weight: 850; letter-spacing: .13em; text-transform: uppercase; }
+    .route-title strong { display: block; margin-top: 5px; font-family: Georgia, "Songti SC", serif; font-size: 25px; }
+    .route-flow { display: flex; align-items: flex-start; min-width: 0; }
+    .stop { position: relative; min-width: 0; flex: 1; padding: 0 4px; text-align: center; }
+    .stop:not(:last-child)::after { content: ""; position: absolute; top: 15px; left: calc(50% + 16px); width: calc(100% - 32px); height: 2px; background: rgba(255,255,255,.22); }
+    .route-card.recommended .stop:not(:last-child)::after { background: rgba(247,198,109,.48); }
+    .stop-dot { position: relative; z-index: 1; display: grid; place-items: center; width: 31px; height: 31px; margin: 0 auto 8px; color: var(--moss-deep); background: #f7c66d; border: 4px solid var(--moss-deep); border-radius: 50%; box-shadow: 0 0 0 1px rgba(247,198,109,.45); font-size: 9px; font-weight: 900; }
+    .recommended .stop-dot { border-color: #2c5b47; }
+    .stop b { display: block; color: rgba(255,255,255,.91); font-size: 11px; line-height: 1.3; }
+    .stop small { display: block; margin-top: 2px; color: rgba(255,255,255,.46); font-size: 9px; }
+    .map-legend { margin: 17px 0 0; color: rgba(255,255,255,.48); font-size: 10px; }
+
+    .plan { padding: 78px 0; }
+    .plan + .plan { border-top: 1px solid var(--line); }
+    .plan-header { display: grid; grid-template-columns: 150px minmax(0, 1fr) auto; gap: 28px; align-items: center; margin-bottom: 31px; }
+    .plan-number { color: var(--laterite); font-family: Georgia, serif; font-size: 112px; line-height: .78; letter-spacing: -.1em; }
+    .plan-title .kicker { margin-bottom: 6px; }
+    .plan-title h3 { margin: 0; font-family: Georgia, "Songti SC", serif; font-size: clamp(30px, 4vw, 45px); font-weight: 500; line-height: 1.05; }
+    .plan-title p { max-width: 680px; margin: 10px 0 0; color: var(--muted); font-size: 13px; }
+    .plan-badge { padding: 9px 13px; color: var(--laterite-deep); background: #f4dfd2; border-radius: 999px; font-size: 11px; font-weight: 850; white-space: nowrap; }
+    .three-day .plan-number { color: var(--moss); }
+    .three-day .plan-badge { color: var(--moss-deep); background: #dfeae2; }
+
+    .days-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .three-day .days-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .day-card { min-width: 0; overflow: hidden; background: var(--ivory); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: 0 12px 36px rgba(74,48,31,.06); }
+    .day-image { position: relative; height: 225px; overflow: hidden; background: var(--paper-deep); }
+    .day-image img { height: 100%; object-fit: cover; transition: transform .6s ease; }
+    .day-card:hover .day-image img { transform: scale(1.025); }
+    .day-image .photo-credit { right: 9px; bottom: 7px; padding: 4px 6px; background: rgba(24,16,12,.58); border-radius: 6px; }
+    .day-body { padding: 24px; }
+    .day-head { display: flex; justify-content: space-between; align-items: start; gap: 15px; margin-bottom: 18px; }
+    .day-head span { color: var(--laterite); font-size: 10px; font-weight: 850; letter-spacing: .11em; text-transform: uppercase; }
+    .day-head h4 { margin: 4px 0 0; font-family: Georgia, "Songti SC", serif; font-size: 24px; line-height: 1.08; }
+    .day-hours { flex: 0 0 auto; padding: 5px 8px; color: var(--moss); background: #e7efe9; border-radius: 999px; font-size: 9px; font-weight: 850; }
+    .timeline { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+    .timeline li { position: relative; display: grid; grid-template-columns: 47px 12px 1fr; gap: 8px; min-height: 48px; padding-bottom: 11px; color: var(--muted); font-size: 11px; }
+    .timeline time { color: var(--ink); font-size: 10px; font-weight: 850; }
+    .timeline .pin { position: relative; width: 10px; height: 10px; margin-top: 4px; background: var(--laterite); border: 2px solid var(--ivory); border-radius: 50%; box-shadow: 0 0 0 1px var(--laterite); }
+    .timeline li:not(:last-child) .pin::after { content: ""; position: absolute; top: 9px; left: 3px; width: 2px; height: 42px; background: #dbcbbb; }
+    .three-day .timeline .pin { background: var(--moss); box-shadow: 0 0 0 1px var(--moss); }
+    .timeline b { color: var(--ink); font-size: 11px; }
+    .day-note { margin: 5px 0 0; padding: 11px 13px; color: #75512c; background: #fbefd9; border-radius: 10px; font-size: 10px; }
+
+    .photo-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+    .photo-card { position: relative; grid-column: span 4; min-height: 390px; overflow: hidden; color: var(--white); background: var(--moss-deep); border-radius: var(--radius-md); }
+    .photo-card.wide { grid-column: span 8; }
+    .photo-card img { position: absolute; inset: 0; height: 100%; object-fit: cover; transition: transform .7s ease; }
+    .photo-card:hover img { transform: scale(1.035); }
+    .photo-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 36%, rgba(21,15,11,.9)); }
+    .photo-copy { position: absolute; z-index: 1; right: 22px; bottom: 21px; left: 22px; }
+    .photo-copy span { color: #ffd58e; font-size: 9px; font-weight: 850; letter-spacing: .11em; text-transform: uppercase; }
+    .photo-copy h3 { margin: 5px 0 4px; font-family: Georgia, "Songti SC", serif; font-size: 24px; line-height: 1.1; }
+    .photo-copy p { max-width: 520px; margin: 0; color: rgba(255,255,255,.68); font-size: 11px; }
+
+    .half-day { display: grid; grid-template-columns: .78fr 1.22fr; gap: 18px; align-items: stretch; }
+    .half-lede { padding: 34px; color: var(--white); background: var(--laterite-deep); border-radius: var(--radius-lg); }
+    .half-lede .big { color: #ffd58e; font-family: Georgia, serif; font-size: 82px; line-height: .8; letter-spacing: -.08em; }
+    .half-lede h3 { margin: 22px 0 11px; font-family: Georgia, "Songti SC", serif; font-size: 30px; line-height: 1.08; }
+    .half-lede p { margin: 0; color: rgba(255,255,255,.67); font-size: 13px; }
+    .half-options { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .half-option { padding: 28px; background: var(--ivory); border: 1px solid var(--line); border-radius: var(--radius-md); }
+    .half-option .icon { display: grid; place-items: center; width: 42px; height: 42px; color: var(--white); background: var(--moss); border-radius: 14px; font-size: 18px; }
+    .half-option h4 { margin: 17px 0 7px; font-family: Georgia, "Songti SC", serif; font-size: 21px; }
+    .half-option p { margin: 0; color: var(--muted); font-size: 11px; }
+    .mini-route { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 17px; color: var(--laterite); font-size: 10px; font-weight: 800; }
+    .mini-route span { padding: 6px 8px; color: var(--ink); background: var(--paper); border-radius: 7px; }
+
+    .matrix { overflow: hidden; margin-top: 35px; background: var(--ivory); border: 1px solid var(--line); border-radius: var(--radius-md); }
+    .matrix-row { display: grid; grid-template-columns: 1.05fr 1fr 1fr; }
+    .matrix-row + .matrix-row { border-top: 1px solid var(--line); }
+    .matrix-cell { min-width: 0; padding: 17px 19px; font-size: 12px; }
+    .matrix-cell + .matrix-cell { border-left: 1px solid var(--line); }
+    .matrix-head { color: var(--white); background: var(--moss-deep); font-weight: 850; }
+    .matrix-head .matrix-cell:last-child { color: var(--ink); background: var(--saffron); }
+    .matrix-label { color: var(--muted); font-size: 11px; font-weight: 800; }
+    .good { color: var(--moss); font-weight: 750; }
+    .caution { color: var(--laterite); font-weight: 750; }
+
+    .recommendation { display: grid; grid-template-columns: auto 1fr .62fr; gap: 30px; align-items: center; padding: 38px; color: var(--white); background: var(--moss-deep); border-radius: var(--radius-lg); }
+    .rec-number { color: #f7c66d; font-family: Georgia, serif; font-size: 116px; line-height: .75; letter-spacing: -.1em; }
+    .rec-copy h2 { font-size: clamp(31px, 4vw, 47px); }
+    .rec-copy p { margin: 12px 0 0; color: rgba(255,255,255,.64); font-size: 13px; }
+    .rec-rule { padding: 20px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); border-radius: var(--radius-md); }
+    .rec-rule strong { display: block; color: #f7c66d; font-size: 12px; }
+    .rec-rule p { margin: 8px 0 0; color: rgba(255,255,255,.66); font-size: 11px; }
+
+    .practical-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 13px; margin-top: 34px; }
+    .practical { padding: 22px; background: var(--ivory); border: 1px solid var(--line); border-radius: var(--radius-md); }
+    .practical-icon { display: grid; place-items: center; width: 39px; height: 39px; color: var(--white); background: var(--laterite); border-radius: 13px; font-size: 17px; }
+    .practical h3 { margin: 15px 0 7px; font-size: 14px; }
+    .practical p { margin: 0; color: var(--muted); font-size: 10px; }
+    .airport-alert { display: grid; grid-template-columns: auto 1fr; gap: 17px; align-items: center; margin-top: 14px; padding: 20px 22px; color: #6d3b23; background: #f9e7d8; border: 1px solid #e8bea1; border-radius: var(--radius-md); }
+    .airport-alert .mark { display: grid; place-items: center; width: 44px; height: 44px; color: var(--white); background: var(--laterite); border-radius: 50%; font-weight: 900; }
+    .airport-alert strong { display: block; font-size: 13px; }
+    .airport-alert span { display: block; margin-top: 3px; font-size: 10px; }
+
+    .sources-layout { display: grid; grid-template-columns: .72fr 1.28fr; gap: 28px; }
+    .sources-lede { padding: 29px; color: var(--white); background: var(--laterite-deep); border-radius: var(--radius-lg); }
+    .sources-lede h2 { font-size: 34px; }
+    .sources-lede p { margin: 14px 0 0; color: rgba(255,255,255,.61); font-size: 11px; }
+    .checked { display: inline-flex; margin-top: 18px; padding: 6px 9px; color: var(--ink); background: var(--saffron); border-radius: 999px; font-size: 9px; font-weight: 850; }
+    .source-list { display: grid; gap: 9px; }
+    .source { display: grid; grid-template-columns: 32px 1fr auto; gap: 12px; align-items: center; padding: 16px; background: var(--ivory); border: 1px solid var(--line); border-radius: 12px; text-decoration: none; transition: transform .2s, border-color .2s; }
+    .source:hover { transform: translateY(-2px); border-color: var(--laterite); }
+    .source-num { color: var(--laterite); font-family: Georgia, serif; font-size: 20px; }
+    .source b { display: block; font-size: 12px; }
+    .source small { display: block; margin-top: 2px; color: var(--muted); font-size: 9px; }
+    .source-arrow { color: var(--laterite); font-weight: 900; }
+    .credit-note { margin: 17px 0 0; color: var(--muted); font-size: 9px; }
+
+    footer { padding: 31px 0 39px; color: rgba(255,255,255,.5); background: #18120f; font-size: 10px; }
+    .footer-row { display: flex; justify-content: space-between; gap: 26px; }
+    .footer-row p { max-width: 750px; margin: 0; }
+    .back-top { color: #f7c66d; font-weight: 800; text-decoration: none; white-space: nowrap; }
+
+    @media (max-width: 760px) {
+      .topbar { min-height: 58px; padding-inline: 15px; }
+      .brand span:last-child, .topnav a:not(.pick) { display: none; }
+      .hero { min-height: 650px; }
+      .hero-inner, .compare-wrap { width: min(100% - 28px, 580px); }
+      .hero-inner { padding-bottom: 54px; }
+      .compare-wrap { margin-top: 14px; }
+      .compare { grid-template-columns: 1fr; }
+      .option { padding: 27px 23px; }
+      .day-number { font-size: 58px; }
+      .section { padding: 69px 0; }
+      .wrap { width: min(100% - 28px, 580px); }
+      .section-head, .verdict-grid, .half-day, .sources-layout { grid-template-columns: 1fr; gap: 20px; }
+      .ticket-strip { grid-template-columns: auto 1fr; }
+      .ticket-note { grid-column: 1 / -1; max-width: none; text-align: left; }
+      .route-card { grid-template-columns: 1fr; }
+      .route-flow { overflow-x: auto; padding-bottom: 7px; }
+      .stop { min-width: 96px; }
+      .plan { padding: 61px 0; }
+      .plan-header { grid-template-columns: 74px 1fr; gap: 18px; }
+      .plan-number { font-size: 73px; }
+      .plan-badge { grid-column: 1 / -1; justify-self: start; }
+      .days-grid, .three-day .days-grid { grid-template-columns: 1fr; }
+      .photo-card, .photo-card.wide { grid-column: span 12; min-height: 360px; }
+      .half-options { grid-template-columns: 1fr; }
+      .matrix { overflow-x: auto; }
+      .matrix-row { min-width: 680px; }
+      .recommendation { grid-template-columns: 70px 1fr; gap: 20px; padding: 29px 24px; }
+      .rec-number { font-size: 76px; }
+      .rec-rule { grid-column: 1 / -1; }
+      .practical-grid { grid-template-columns: 1fr 1fr; }
+      .footer-row { display: block; }
+      .back-top { display: inline-block; margin-top: 13px; }
+    }
+    @media (max-width: 420px) {
+      .metrics, .practical-grid { grid-template-columns: 1fr; }
+      .metric { padding-top: 10px; }
+      .verdict-main { padding: 29px 23px; }
+      .day-image { height: 205px; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .day-image img, .photo-card img { transition: none; } }
+    @media print { .topbar { position: static; } .hero { min-height: 560px; } .section, .plan { padding: 48px 0; } .day-card, .compare { box-shadow: none; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top"><span class="brand-mark">A</span><span>ANGKOR FIELD NOTES</span></a>
+    <nav class="topnav" aria-label="页面导航">
+      <a href="#compare">先看结论</a>
+      <a href="#itineraries">逐日行程</a>
+      <a href="#route-map">路线图</a>
+      <a class="pick" href="#recommendation">直接选 3 天</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="page-title">
+      <img src="assets/angkor/angkor-wat-sunrise.jpg" alt="清晨霞光中的吴哥窟与倒影">
+      <div class="hero-inner">
+        <div class="eyebrow">Siem Reap · Angkor · Field Guide</div>
+        <h1 id="page-title">吴哥窟，<br>两天还是三天？</h1>
+        <p class="hero-lede">两天能看完“名片”，三天才看见吴哥的层次。把时间、路线、体力和遗憾摊开比较，选一个真正适合你的版本。</p>
+        <div class="hero-actions">
+          <a class="button" href="#compare">30 秒看懂差别 ↓</a>
+          <a class="button ghost" href="#itineraries">查看逐日安排</a>
+        </div>
+      </div>
+      <div class="photo-credit">照片：<a href="https://commons.wikimedia.org/wiki/File:Angkor_Wat_at_sunrise_1.jpg" target="_blank" rel="noopener">Christophe95 / Wikimedia Commons · CC BY-SA 4.0</a></div>
+    </section>
+
+    <section class="compare-wrap" id="compare" aria-label="两天与三天快速对比">
+      <div class="compare">
+        <article class="option">
+          <div class="option-top"><span class="day-number">2</span><span class="tag">效率优先</span></div>
+          <h2>核心浓缩版</h2>
+          <p>吴哥窟、吴哥通、巴戎寺、塔普伦寺与女王宫都能覆盖；代价是早起、转场密、几乎没有留白。</p>
+          <div class="metrics"><div class="metric"><strong>8–10h</strong><span>每天在外</span></div><div class="metric"><strong>6 大核心</strong><span>代表性遗址</span></div><div class="metric"><strong>偏紧</strong><span>行程节奏</span></div></div>
+        </article>
+        <article class="option">
+          <div class="option-top"><span class="day-number">3</span><span class="tag">推荐</span></div>
+          <h2>第一次来最均衡</h2>
+          <p>把小圈、大圈与外圈拆开；多出圣剑寺、涅槃宫、比粒寺，也有午休和光线选择。</p>
+          <div class="metrics"><div class="metric"><strong>6–8h</strong><span>每天在外</span></div><div class="metric"><strong>10+ 遗址</strong><span>层次更完整</span></div><div class="metric"><strong>舒展</strong><span>行程节奏</span></div></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="verdict-title">
+      <div class="wrap">
+        <div class="verdict-grid">
+          <article class="verdict-main">
+            <span class="label">一句话结论</span>
+            <h3 id="verdict-title">第一次来，有完整 3 天就选 3 天；只有 2 天也完全值得去。</h3>
+            <p>两天版不是“残缺版”，而是高密度精华版。三天真正买到的并非多几个寺，而是更好的光线、更少的正午暴晒，以及在巴戎寺和圣剑寺里慢下来观察的时间。</p>
+          </article>
+          <div class="verdict-side">
+            <article class="mini-verdict"><strong>选 2 天，如果…</strong><p>行程总长有限、体力不错、第一次来只想覆盖地标；愿意 04:30 起床，也接受两个长日连续输出。</p></article>
+            <article class="mini-verdict accent"><strong>选 3 天，如果…</strong><p>喜欢建筑、历史、摄影，或不想把吴哥变成打卡赛跑；尤其适合带父母、怕热或雨季出行。</p></article>
+          </div>
+        </div>
+        <div class="ticket-strip" aria-label="吴哥门票提醒">
+          <div class="ticket-price">$62</div>
+          <div class="ticket-copy"><strong>两种方案都建议买 3 日通票</strong><span>3 次入园可在 7 天内使用；2 天连续入园也比买两张 $37 单日票更划算。</span></div>
+          <div class="ticket-note">票价与有效期按 Angkor Enterprise 2026 年 8 月页面核对；购票前再看一次官方页面。</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section dark" id="route-map" aria-labelledby="map-title">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">Route map · 路线示意</p><h2 id="map-title">不是少一天，<br>而是把两条线压成一条。</h2></div>
+          <p class="section-intro">两天版的第二天把外圈女王宫与大圈北线串在一起；三天版则把“王城”“森林与水”“红砂岩”拆开。下图是行程逻辑，不按真实比例。</p>
+        </div>
+        <div class="route-board">
+          <article class="route-card">
+            <div class="route-title"><span>2-day compression</span><strong>两天 · 双长日</strong></div>
+            <div class="route-flow" aria-label="两天路线">
+              <div class="stop"><div class="stop-dot">D1</div><b>吴哥窟</b><small>日出＋主殿</small></div>
+              <div class="stop"><div class="stop-dot">01</div><b>吴哥通</b><small>巴戎寺</small></div>
+              <div class="stop"><div class="stop-dot">02</div><b>塔普伦</b><small>树根神殿</small></div>
+              <div class="stop"><div class="stop-dot">D2</div><b>女王宫</b><small>外圈北上</small></div>
+              <div class="stop"><div class="stop-dot">03</div><b>圣剑寺</b><small>大圈北线</small></div>
+              <div class="stop"><div class="stop-dot">04</div><b>比粒寺</b><small>可选日落</small></div>
+            </div>
+          </article>
+          <article class="route-card recommended">
+            <div class="route-title"><span>3-day rhythm · 推荐</span><strong>三天 · 三种主题</strong></div>
+            <div class="route-flow" aria-label="三天路线">
+              <div class="stop"><div class="stop-dot">D1</div><b>吴哥窟</b><small>日出</small></div>
+              <div class="stop"><div class="stop-dot">01</div><b>塔普伦</b><small>森林</small></div>
+              <div class="stop"><div class="stop-dot">D2</div><b>吴哥通</b><small>王城</small></div>
+              <div class="stop"><div class="stop-dot">02</div><b>圣剑寺</b><small>大圈</small></div>
+              <div class="stop"><div class="stop-dot">D3</div><b>女王宫</b><small>雕刻</small></div>
+              <div class="stop"><div class="stop-dot">03</div><b>罗洛士</b><small>早期都城</small></div>
+            </div>
+          </article>
+        </div>
+        <p class="map-legend">● 金色节点为主要停靠点；每个节点之间通常还包含 10–40 分钟车程。女王宫距核心园区较远，两天版第二日务必用汽车，不建议全程嘟嘟车。</p>
+      </div>
+    </section>
+
+    <section class="section ivory" id="itineraries" aria-labelledby="itinerary-title">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">Day by day · 逐日安排</p><h2 id="itinerary-title">同样的必看清单，<br>两种完全不同的节奏。</h2></div>
+          <p class="section-intro">时间按住在暹粒市区、包车或嘟嘟车、已提前买好通票估算。每段留了少量缓冲，但现场开放、道路与天气会变化；让司机按当天情况微调。</p>
+        </div>
+
+        <article class="plan two-day" aria-labelledby="two-title">
+          <div class="plan-header">
+            <div class="plan-number">2</div>
+            <div class="plan-title"><p class="kicker">2 days · Core compression</p><h3 id="two-title">把地标一次看够</h3><p>适合体力中上、拍照不追求等待空镜的人。第一天锁定三大名片，第二天用汽车串联女王宫与大圈。</p></div>
+            <span class="plan-badge">完成度约 85–90%</span>
+          </div>
+          <div class="days-grid">
+            <article class="day-card">
+              <figure class="day-image"><img src="assets/angkor/bayon.jpg" alt="巴戎寺巨大的石雕微笑面孔" loading="lazy"><figcaption class="photo-credit"><a href="https://commons.wikimedia.org/wiki/File:20171127_Bayon_Temple_Angkor_Thom_4754_DxO.jpg" target="_blank" rel="noopener">Jakub Hałun · CC BY-SA 4.0</a></figcaption></figure>
+              <div class="day-body">
+                <div class="day-head"><div><span>Day 1 · 三大名片</span><h4>日出、王城与树根神殿</h4></div><div class="day-hours">约 12 小时</div></div>
+                <ol class="timeline">
+                  <li><time>04:40</time><i class="pin"></i><div><b>酒店出发</b>｜通票提前买好；带早餐盒与水。</div></li>
+                  <li><time>05:15</time><i class="pin"></i><div><b>吴哥窟日出</b>｜倒影池看天色，亮后进入主殿。</div></li>
+                  <li><time>07:00</time><i class="pin"></i><div><b>吴哥寺内部</b>｜回廊浮雕、中央须弥山与庭院。</div></li>
+                  <li><time>09:45</time><i class="pin"></i><div><b>南门 → 巴戎寺</b>｜先看城门，再进入微笑高塔。</div></li>
+                  <li><time>11:15</time><i class="pin"></i><div><b>巴方寺与王宫区</b>｜象台、癞王台按体力取舍。</div></li>
+                  <li><time>13:00</time><i class="pin"></i><div><b>园区午餐</b>｜坐下休息 45–60 分钟，避开最热时段。</div></li>
+                  <li><time>14:15</time><i class="pin"></i><div><b>塔普伦寺</b>｜树根与廊道；预留 75–90 分钟。</div></li>
+                  <li><time>16:00</time><i class="pin"></i><div><b>斑黛喀蒂＋皇家浴池</b>｜还有体力再加，否则直接回城。</div></li>
+                </ol>
+                <p class="day-note">取舍原则：不要为了“全看”牺牲吴哥窟与巴戎寺；下午支线可以删。</p>
+              </div>
+            </article>
+
+            <article class="day-card">
+              <figure class="day-image"><img src="assets/angkor/banteay-srei.jpg" alt="女王宫精细的红砂岩雕刻与塔门" loading="lazy"><figcaption class="photo-credit"><a href="https://commons.wikimedia.org/wiki/File:Cambodge_Banteay_Srei_Temple_(2).jpg" target="_blank" rel="noopener">Pierre André Leclercq · CC BY-SA 4.0</a></figcaption></figure>
+              <div class="day-body">
+                <div class="day-head"><div><span>Day 2 · 外圈＋大圈</span><h4>红砂岩一路回到日落</h4></div><div class="day-hours">约 11 小时</div></div>
+                <ol class="timeline">
+                  <li><time>06:45</time><i class="pin"></i><div><b>酒店出发</b>｜汽车更舒适，也能节省远程转场时间。</div></li>
+                  <li><time>08:00</time><i class="pin"></i><div><b>女王宫</b>｜雕刻最精细；早到光线柔和、人也较少。</div></li>
+                  <li><time>10:00</time><i class="pin"></i><div><b>班蒂色玛寺</b>｜尺度安静，和吴哥窟建筑语言呼应。</div></li>
+                  <li><time>11:30</time><i class="pin"></i><div><b>午餐与转场</b>｜返回大圈北线，补水、休息。</div></li>
+                  <li><time>12:45</time><i class="pin"></i><div><b>圣剑寺</b>｜穿越式参观，重点看长轴、树根与藏经阁。</div></li>
+                  <li><time>14:30</time><i class="pin"></i><div><b>涅槃宫 → 塔逊寺</b>｜水上栈道与小型树门各有风格。</div></li>
+                  <li><time>16:00</time><i class="pin"></i><div><b>东梅奔</b>｜时间紧可从车上决定是否停。</div></li>
+                  <li><time>17:00</time><i class="pin"></i><div><b>比粒寺金色时刻</b>｜看天气与开放安排，不为日落硬等。</div></li>
+                </ol>
+                <p class="day-note">这天最容易超时。累了就删东梅奔和日落，保留女王宫、圣剑寺、涅槃宫。</p>
+              </div>
+            </article>
+          </div>
+        </article>
+
+        <article class="plan three-day" aria-labelledby="three-title">
+          <div class="plan-header">
+            <div class="plan-number">3</div>
+            <div class="plan-title"><p class="kicker">3 days · Layered Angkor</p><h3 id="three-title">从地标走进文明的层次</h3><p>三天不是简单多塞一天：把王城、大圈与外圈拆开，能用更好的光线参观，也能在中午真正坐下休息。</p></div>
+            <span class="plan-badge">第一次来最推荐</span>
+          </div>
+          <div class="days-grid">
+            <article class="day-card">
+              <figure class="day-image"><img src="assets/angkor/ta-prohm.jpg" alt="巨大树根包裹塔普伦寺石墙" loading="lazy"><figcaption class="photo-credit"><a href="https://commons.wikimedia.org/wiki/File:20191210_Ta_Prohm_sprung_tree_roots-1.jpg" target="_blank" rel="noopener">Balon Greyjoy · Public domain</a></figcaption></figure>
+              <div class="day-body">
+                <div class="day-head"><div><span>Day 1 · 日出＋森林</span><h4>吴哥窟与塔普伦</h4></div><div class="day-hours">04:40–14:00</div></div>
+                <ol class="timeline">
+                  <li><time>04:40</time><i class="pin"></i><div><b>出发看日出</b>｜天亮后直接进吴哥寺。</div></li>
+                  <li><time>07:00</time><i class="pin"></i><div><b>回廊与主殿</b>｜比两天版多留半小时观察浮雕。</div></li>
+                  <li><time>09:45</time><i class="pin"></i><div><b>早餐／咖啡</b>｜短暂停，不急着冲下一站。</div></li>
+                  <li><time>10:45</time><i class="pin"></i><div><b>塔普伦寺</b>｜错开大批日出团的首轮动线。</div></li>
+                  <li><time>12:30</time><i class="pin"></i><div><b>斑黛喀蒂</b>｜还有体力再走，之后回城休息。</div></li>
+                </ol>
+                <p class="day-note">下午留白：按摩、泳池或睡觉。第二天不会带着“日出债”进王城。</p>
+              </div>
+            </article>
+
+            <article class="day-card">
+              <figure class="day-image"><img src="assets/angkor/preah-khan.jpg" alt="圣剑寺的石柱、廊道与树木" loading="lazy"><figcaption class="photo-credit"><a href="https://commons.wikimedia.org/wiki/File:Preah_Khan,_Angkor,_Camboya,_2013-08-17,_DD_26.JPG" target="_blank" rel="noopener">Diego Delso · CC BY-SA 3.0</a></figcaption></figure>
+              <div class="day-body">
+                <div class="day-head"><div><span>Day 2 · 王城＋大圈</span><h4>高棉帝国的城市尺度</h4></div><div class="day-hours">07:30–16:30</div></div>
+                <ol class="timeline">
+                  <li><time>07:30</time><i class="pin"></i><div><b>南门</b>｜神魔搅海雕像与护城河。</div></li>
+                  <li><time>08:00</time><i class="pin"></i><div><b>巴戎寺</b>｜早光下看面塔和浮雕。</div></li>
+                  <li><time>09:30</time><i class="pin"></i><div><b>巴方寺＋王宫区</b>｜象台、癞王台慢慢走。</div></li>
+                  <li><time>11:45</time><i class="pin"></i><div><b>午餐</b>｜园区内坐下休息约 1 小时。</div></li>
+                  <li><time>13:00</time><i class="pin"></i><div><b>圣剑寺</b>｜从一端穿到另一端，空间变化很强。</div></li>
+                  <li><time>14:45</time><i class="pin"></i><div><b>涅槃宫</b>｜走过水库栈道，换一种节奏。</div></li>
+                  <li><time>15:45</time><i class="pin"></i><div><b>塔逊寺／东梅奔</b>｜二选一，保留轻松收尾。</div></li>
+                </ol>
+                <p class="day-note">这一天的重点是“王城如何运作”，不是寺庙数量。请导游的收益也最高。</p>
+              </div>
+            </article>
+
+            <article class="day-card">
+              <figure class="day-image"><img src="assets/angkor/pre-rup-sunset.jpg" alt="夕阳中的比粒寺砖塔" loading="lazy"><figcaption class="photo-credit"><a href="https://commons.wikimedia.org/wiki/File:Pre_Rup_at_sunset_(39444613325).jpg" target="_blank" rel="noopener">Mig Gilbert · CC BY-SA 2.0</a></figcaption></figure>
+              <div class="day-body">
+                <div class="day-head"><div><span>Day 3 · 红砂岩＋早期都城</span><h4>女王宫与罗洛士</h4></div><div class="day-hours">07:00–16:30</div></div>
+                <ol class="timeline">
+                  <li><time>07:00</time><i class="pin"></i><div><b>汽车出发</b>｜避开女王宫正午硬光。</div></li>
+                  <li><time>08:00</time><i class="pin"></i><div><b>女王宫</b>｜给门楣、山墙雕刻完整 90 分钟。</div></li>
+                  <li><time>10:15</time><i class="pin"></i><div><b>班蒂色玛寺</b>｜游客少、围墙结构完整。</div></li>
+                  <li><time>12:00</time><i class="pin"></i><div><b>午餐</b>｜回程用餐，避开最晒的时段。</div></li>
+                  <li><time>13:30</time><i class="pin"></i><div><b>罗洛士遗址群</b>｜神牛寺、巴孔寺看早期都城演变。</div></li>
+                  <li><time>16:30</time><i class="pin"></i><div><b>回到暹粒</b>｜不拖到日落，晚上好好吃一餐。</div></li>
+                </ol>
+                <p class="day-note">若你只想看经典，可把罗洛士换成自由下午；三天版的价值也包括“不必塞满”。</p>
+              </div>
+            </article>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="highlights-title">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">What the third day adds</p><h2 id="highlights-title">第三天多出来的，<br>是三种完全不同的吴哥。</h2></div>
+          <p class="section-intro">从森林吞没建筑的张力，到水利系统的尺度，再到红砂岩的细密雕刻。它们不只是“又一座寺”。</p>
+        </div>
+        <div class="photo-grid">
+          <article class="photo-card wide"><img src="assets/angkor/ta-prohm.jpg" alt="树根覆盖塔普伦寺遗迹" loading="lazy"><div class="photo-copy"><span>Forest · 森林</span><h3>塔普伦：自然与建筑缠在一起</h3><p>两天版也会来，但三天版能错开最拥挤的时段，并保留足够时间钻进侧廊。</p></div></article>
+          <article class="photo-card"><img src="assets/angkor/neak-pean.jpg" alt="水池中央的涅槃宫" loading="lazy"><div class="photo-copy"><span>Water · 水</span><h3>涅槃宫</h3><p>走过水库栈道，理解吴哥不仅是塔，也是水利城市。</p></div></article>
+          <article class="photo-card"><img src="assets/angkor/banteay-srei.jpg" alt="女王宫红砂岩塔门与雕刻" loading="lazy"><div class="photo-copy"><span>Craft · 雕刻</span><h3>女王宫</h3><p>红砂岩使细节像木雕；早晨斜光比正午更能读出层次。</p></div></article>
+          <article class="photo-card wide"><img src="assets/angkor/preah-khan.jpg" alt="圣剑寺幽深的石柱长廊" loading="lazy"><div class="photo-copy"><span>City · 城市</span><h3>圣剑寺：一座可以穿行的城市</h3><p>长轴、院落、树根与两层石构藏经阁连续展开，是大圈最值得慢走的一站。</p></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section ivory" aria-labelledby="half-title">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">Your likely case · 你的实际情况</p><h2 id="half-title">如果是两个全天，<br>外加半天。</h2></div>
+          <p class="section-intro">这是很好的 2.5 天“甜点位”：不必多请一天假，也不必把半天浪费在市区。买 3 日票，把一个轻量寺庙组从两个长日里拆出来。</p>
+        </div>
+        <div class="half-day">
+          <article class="half-lede"><div class="big">2½</div><h3>我的实际推荐：去。</h3><p>两个全天已经覆盖核心；半天用来减压，而不是再新增一个遥远景点。整个体验会明显好过纯两天。</p></article>
+          <div class="half-options">
+            <article class="half-option"><div class="icon">☀</div><h4>中午抵达 SAI</h4><p>落地、入境和约 1 小时以上车程后，通常要到 15:00 左右才适合开玩。安排东方寺庙群的金色时刻，不冲吴哥窟主殿。</p><div class="mini-route"><span>酒店</span> → <span>东梅奔</span> → <span>比粒寺</span></div></article>
+            <article class="half-option"><div class="icon">↗</div><h4>晚上从 SAI 离开</h4><p>上午用来补一组离城较近的核心遗址，中午回酒店取行李。国际航班建议从市区提前约 3 小时出发。</p><div class="mini-route"><span>塔普伦</span> → <span>斑黛喀蒂</span> → <span>酒店</span></div></article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="tradeoffs-title">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">Trade-offs · 取舍表</p><h2 id="tradeoffs-title">你真正交换的，<br>是节奏和选择权。</h2></div>
+          <p class="section-intro">门票几乎不是区别：2 天与 3 天都适合买同一张 3 日票。差别主要来自司机时长、住宿一晚，以及体力恢复。</p>
+        </div>
+        <div class="matrix" role="table" aria-label="两天与三天行程取舍对比">
+          <div class="matrix-row matrix-head" role="row"><div class="matrix-cell" role="columnheader">比较项</div><div class="matrix-cell" role="columnheader">2 天</div><div class="matrix-cell" role="columnheader">3 天 · 推荐</div></div>
+          <div class="matrix-row" role="row"><div class="matrix-cell matrix-label" role="rowheader">覆盖范围</div><div class="matrix-cell">核心地标 + 女王宫 + 大圈精华</div><div class="matrix-cell good">核心地标 + 完整大圈 + 外圈／早期都城</div></div>
+          <div class="matrix-row" role="row"><div class="matrix-cell matrix-label" role="rowheader">每日强度</div><div class="matrix-cell caution">连续 10–12 小时，早起后仍长距离转场</div><div class="matrix-cell good">多为 6–9 小时，可安排午休或自由下午</div></div>
+          <div class="matrix-row" role="row"><div class="matrix-cell matrix-label" role="rowheader">光线与人流</div><div class="matrix-cell">优先保证日出，其他景点随到随看</div><div class="matrix-cell good">能为巴戎、塔普伦、女王宫挑较好时段</div></div>
+          <div class="matrix-row" role="row"><div class="matrix-cell matrix-label" role="rowheader">下雨／疲劳容错</div><div class="matrix-cell caution">低；一段延误会挤压后半天</div><div class="matrix-cell good">高；可交换第二、三天或提前收工</div></div>
+          <div class="matrix-row" role="row"><div class="matrix-cell matrix-label" role="rowheader">历史理解</div><div class="matrix-cell">以“最著名的几座”为主</div><div class="matrix-cell good">能看出早期、鼎盛期与不同宗教空间</div></div>
+          <div class="matrix-row" role="row"><div class="matrix-cell matrix-label" role="rowheader">门票</div><div class="matrix-cell">3 日票 $62（优于 2 × $37）</div><div class="matrix-cell">同一张 3 日票 $62</div></div>
+          <div class="matrix-row" role="row"><div class="matrix-cell matrix-label" role="rowheader">最适合</div><div class="matrix-cell">短假、体力好、目标明确</div><div class="matrix-cell good">第一次来、摄影、历史、亲子／父母同行</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="recommendation" aria-labelledby="recommend-title">
+      <div class="wrap">
+        <div class="recommendation">
+          <div class="rec-number">3</div>
+          <div class="rec-copy"><p class="kicker">Final recommendation</p><h2 id="recommend-title">能给三天，就给三天。</h2><p>这是第一次到吴哥最均衡的长度：足够完整，又还没进入“每座寺开始相似”的边际递减区。若你的真实条件是两个全天＋半天，则不必为了凑满三天额外多请假——按上面的 2.5 天方案直接去。</p></div>
+          <aside class="rec-rule"><strong>简单决策线</strong><p><b>1.5 天：</b>太赶<br><b>2 天：</b>核心完整<br><b>2.5 天：</b>很值得，性价比最高<br><b>3 天：</b>第一次来最舒服<br><b>4+ 天：</b>适合深度建筑、考古或摄影</p></aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section ivory" aria-labelledby="practical-title">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">Before you go · 行前</p><h2 id="practical-title">四个会直接影响体验的细节。</h2></div>
+          <p class="section-intro">具体开放时间会按寺庙与现场管理调整。通票标示园区最早 05:00 入园，但多数寺庙不是 05:00 开门；日出计划以吴哥窟为核心。</p>
+        </div>
+        <div class="practical-grid">
+          <article class="practical"><div class="practical-icon">◷</div><h3>票先买好</h3><p>日出当天不要再去主售票处排队。官方支持网站、App、柜台等方式；核对照片与日期。</p></article>
+          <article class="practical"><div class="practical-icon">⌁</div><h3>远程日用汽车</h3><p>女王宫与大圈组合路远、热、尘多。两天版 Day 2 用空调车，体验差距非常明显。</p></article>
+          <article class="practical"><div class="practical-icon">☂</div><h3>正午要减速</h3><p>帽子、防晒、雨具与电解质水都要带。三天版的午休不是浪费，是维持后半程质量。</p></article>
+          <article class="practical"><div class="practical-icon">◇</div><h3>穿着覆盖肩膝</h3><p>这里仍是活态宗教与文化遗产。穿稳固鞋，不攀爬封闭区，也不要触碰雕刻。</p></article>
+        </div>
+        <div class="airport-alert"><div class="mark">SAI</div><div><strong>别把新机场当成旧 REP：它离暹粒市区约 51 km。</strong><span>官方资料标示 SAI 距暹粒市约 51 km、距吴哥窟约 40 km。实际车程常需约 60–75 分钟；抵达半天与离境半天都要把这段路算进去。</span></div></div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="sources-title">
+      <div class="wrap sources-layout">
+        <article class="sources-lede"><p class="kicker">Checked sources</p><h2 id="sources-title">可核对的信息</h2><p>行程是基于常见游览节奏的规划建议；票价、有效期、园区时段与机场距离采用官方或权威来源。出发前仍应复核临时关闭与天气。</p><span class="checked">页面信息核对：2026-08-26</span></article>
+        <div>
+          <div class="source-list">
+            <a class="source" href="https://www.angkorenterprise.gov.kh/en/available-tickets" target="_blank" rel="noopener"><span class="source-num">01</span><span><b>Angkor Enterprise · 通票种类与票价</b><small>1 日 $37；3 日 $62、7 天内使用；园区票面时段 05:00–18:30。</small></span><span class="source-arrow">↗</span></a>
+            <a class="source" href="https://www.angkorenterprise.gov.kh/en/group-help-center/6837c5a319ea3a8905440133/help-center?id=683806ba756fc93ae74c34f9" target="_blank" rel="noopener"><span class="source-num">02</span><span><b>Angkor Enterprise · 官方售票处</b><small>主售票处位置、营业时间与支付方式。</small></span><span class="source-arrow">↗</span></a>
+            <a class="source" href="https://whc.unesco.org/en/list/668/" target="_blank" rel="noopener"><span class="source-num">03</span><span><b>UNESCO World Heritage Centre · Angkor</b><small>遗产范围约 400 km²，以及吴哥窟、巴戎、圣剑寺、塔普伦的价值。</small></span><span class="source-arrow">↗</span></a>
+            <a class="source" href="https://www.tourismcambodia.org/public/index.php/official-activities/siem-reap-angkor-international-airport-successfully-completes-airport-flight-demonstration" target="_blank" rel="noopener"><span class="source-num">04</span><span><b>柬埔寨旅游部 · SAI 机场位置</b><small>机场距暹粒市约 51 km、距吴哥窟约 40 km。</small></span><span class="source-arrow">↗</span></a>
+          </div>
+          <p class="credit-note">照片均来自 Wikimedia Commons：<a href="https://commons.wikimedia.org/wiki/File:Angkor_Wat_at_sunrise_1.jpg" target="_blank" rel="noopener">吴哥窟</a>、<a href="https://commons.wikimedia.org/wiki/File:20171127_Bayon_Temple_Angkor_Thom_4754_DxO.jpg" target="_blank" rel="noopener">巴戎寺</a>、<a href="https://commons.wikimedia.org/wiki/File:20191210_Ta_Prohm_sprung_tree_roots-1.jpg" target="_blank" rel="noopener">塔普伦寺</a>、<a href="https://commons.wikimedia.org/wiki/File:Cambodge_Banteay_Srei_Temple_(2).jpg" target="_blank" rel="noopener">女王宫</a>、<a href="https://commons.wikimedia.org/wiki/File:Preah_Khan,_Angkor,_Camboya,_2013-08-17,_DD_26.JPG" target="_blank" rel="noopener">圣剑寺</a>、<a href="https://commons.wikimedia.org/wiki/File:2016_Angkor,_Neak_Pean_(01).jpg" target="_blank" rel="noopener">涅槃宫</a>、<a href="https://commons.wikimedia.org/wiki/File:Pre_Rup_at_sunset_(39444613325).jpg" target="_blank" rel="noopener">比粒寺</a>；作者与 CC BY / CC BY-SA / 公有领域许可见各文件页。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-row"><p>这是一份行程设计指南，不是官方开放承诺。寺庙修缮、宗教活动、天气与人流都可能改变当天动线；尊重现场指引，并把“少看一座、好好看一座”当作正常选择。</p><a class="back-top" href="#top">回到顶部 ↑</a></div>
+  </footer>
+</body>
+</html>
