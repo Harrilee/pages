@@ -149,7 +149,7 @@
     .sources a { color: var(--blue); }
 
     .article-shell { padding-top: 78px; }
-    .article { width: min(900px, 100%); margin: 0 auto; }
+    .article { width: min(900px, 100%); min-width: 0; margin: 0 auto; }
     .article > h2 { margin-top: 86px; padding-top: 6px; font-size: clamp(31px, 5vw, 50px); }
     .article > h2:first-child { margin-top: 0; }
     .article h3 { margin: 38px 0 12px; color: #174f68; font-size: 22px; line-height: 1.28; letter-spacing: -.025em; }
@@ -162,8 +162,8 @@
     .article blockquote p { margin: 5px 0; color: inherit; }
     .article pre { margin: 20px 0; padding: 18px 20px; overflow-x: auto; color: #d8f9f5; background: #0d2230; border-radius: 14px; font-size: 12px; line-height: 1.55; }
     .article :not(pre) > code { padding: 2px 6px; color: #075f61; background: #e4f0f0; border-radius: 5px; font-size: .88em; }
-    .article table { min-width: 650px; }
-    .article table:not(:first-child) { margin-top: 5px; }
+    .article-table-wrap { max-width: 100%; margin-top: 20px; -webkit-overflow-scrolling: touch; }
+    .article-table-wrap table { width: max-content; min-width: 650px; margin: 0; }
     .article hr { height: 1px; margin: 64px 0; background: var(--line); border: 0; }
     .article a { color: var(--blue); text-decoration-thickness: 1px; text-underline-offset: 3px; }
     .article .MathJax { overflow-x: auto; overflow-y: hidden; }
@@ -345,7 +345,7 @@ $$</p>
 <li>$P$：参数量。</li>
 <li>$b_w$：平均每参数位数。</li>
 </ul>
-<table>
+<div class="table-wrap article-table-wrap" role="region" aria-label="可横向滚动的表格" tabindex="0"><table>
 <thead>
 <tr>
 <th>权重格式</th>
@@ -372,7 +372,7 @@ $$</p>
 <td align="right">32.6 GiB</td>
 <td>还要加 scale、zero-point、padding 等</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <p>实际值为什么大于理论值：</p>
 <ul>
 <li>分组量化需要 scale，有些格式还要 zero-point。</li>
@@ -427,7 +427,7 @@ M_{KV/GPU}\approx\frac{M_{KV}}{S_{KV}}
 $$</p>
 <p>$S_{KV}$ 是实际 KV shard factor，要根据模型结构和引擎实现确认，不能永远假设等于 TP。</p>
 <h3>2.3 激活和工作区</h3>
-<table>
+<div class="table-wrap article-table-wrap" role="region" aria-label="可横向滚动的表格" tabindex="0"><table>
 <thead>
 <tr>
 <th>项目</th>
@@ -470,7 +470,7 @@ $$</p>
 <td>draft model、LoRA、视觉编码器</td>
 <td>单独记账</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <p>“预留 10%～20%”只能作为初始预算，不能替代 profile。引擎版本、CUDA Graph、kernel、请求 shape 和运行时间都会改变峰值。</p>
 <hr>
 <h2>3. Attention、FlashAttention 和 Paged Attention</h2>
@@ -524,7 +524,7 @@ $$</p>
 </ul>
 <hr>
 <h2>4. TP / PP / DP / EP / CP</h2>
-<table>
+<div class="table-wrap article-table-wrap" role="region" aria-label="可横向滚动的表格" tabindex="0"><table>
 <thead>
 <tr>
 <th>并行方式</th>
@@ -569,7 +569,7 @@ $$</p>
 <td>attention 通信与实现复杂</td>
 <td>超长上下文</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <h3>4.1 TP</h3>
 <p>TP 适合解决“单层权重太大，一张卡放不下”的问题。</p>
 <p>优点：</p>
@@ -637,7 +637,7 @@ $$</p>
 2\times32\times8\times128\times2=131{,}072\text{ bytes}=128\text{ KiB/token}
 $$</p>
 <p>因此，单序列 KV 约为：</p>
-<table>
+<div class="table-wrap article-table-wrap" role="region" aria-label="可横向滚动的表格" tabindex="0"><table>
 <thead>
 <tr>
 <th align="right">上下文</th>
@@ -656,7 +656,7 @@ $$</p>
 <td align="right">128K</td>
 <td align="right">16 GiB</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <p>权重：</p>
 <ul>
 <li>BF16 8B 理论约 14.9 GiB。</li>
@@ -688,7 +688,7 @@ $$</p>
 2\times80\times8\times128\times2=327{,}680\text{ bytes}=320\text{ KiB/token}
 $$</p>
 <p>单序列 KV：</p>
-<table>
+<div class="table-wrap article-table-wrap" role="region" aria-label="可横向滚动的表格" tabindex="0"><table>
 <thead>
 <tr>
 <th align="right">上下文</th>
@@ -707,7 +707,7 @@ $$</p>
 <td align="right">128K</td>
 <td align="right">40 GiB</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <h3>情况 A：TP=2，2×80 GiB</h3>
 <ul>
 <li>每卡权重约 65.2 GiB。</li>
@@ -749,7 +749,7 @@ $$</p>
 <li><strong>计算预算</strong>：每个 token 只经过少量 experts，因此主要计算量更接近激活参数，但仍有共享层、路由、通信和负载不均成本。</li>
 </ul>
 <p>常见错误：</p>
-<table>
+<div class="table-wrap article-table-wrap" role="region" aria-label="可横向滚动的表格" tabindex="0"><table>
 <thead>
 <tr>
 <th>错误说法</th>
@@ -768,7 +768,7 @@ $$</p>
 <td>加 EP 就能线性扩展</td>
 <td>未必。all-to-all、负载偏斜和跨节点拓扑都会降低效率</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <hr>
 <h2>6. 从公式得到 GPU 数量</h2>
 <h3>6.1 容量下界</h3>
@@ -816,7 +816,7 @@ $$</p>
 这些项目变化很快，默认值可能随版本改变。下面重点记录参数的<strong>控制对象</strong>。实际部署时以当前安装版本的 <code>--help</code> 和对应版本文档为准。</p>
 </blockquote>
 <h3>7.1 vLLM</h3>
-<table>
+<div class="table-wrap article-table-wrap" role="region" aria-label="可横向滚动的表格" tabindex="0"><table>
 <thead>
 <tr>
 <th>参数</th>
@@ -864,7 +864,7 @@ $$</p>
 <td>前缀 KV 复用</td>
 <td>收益取决于前缀命中率</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <p>理解重点：</p>
 <ul>
 <li>vLLM 启动时会 profile 非 KV 开销，再把预算中的剩余部分用于 KV blocks。</li>
@@ -872,7 +872,7 @@ $$</p>
 <li><code>max_num_batched_tokens</code> 主要影响一次迭代的工作量，不等于 KV 总容量。</li>
 </ul>
 <h3>7.2 SGLang</h3>
-<table>
+<div class="table-wrap article-table-wrap" role="region" aria-label="可横向滚动的表格" tabindex="0"><table>
 <thead>
 <tr>
 <th>参数</th>
@@ -915,10 +915,10 @@ $$</p>
 <td>TP / EP 并行度</td>
 <td>要结合 GPU 拓扑</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <p>SGLang 的 RadixAttention 用于复用前缀 KV；HiCache 将缓存扩展为 GPU、CPU 和存储多层。</p>
 <h3>7.3 TensorRT-LLM</h3>
-<table>
+<div class="table-wrap article-table-wrap" role="region" aria-label="可横向滚动的表格" tabindex="0"><table>
 <thead>
 <tr>
 <th>参数</th>
@@ -961,7 +961,7 @@ $$</p>
 <td>并行切分</td>
 <td>通信必须映射到合适拓扑</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <h3>7.4 容易被漏掉的软件 buffer</h3>
 <ul>
 <li>CUDA context 和库初始化。</li>
@@ -989,7 +989,7 @@ CPU DRAM（容量层）
     ↓
 远端 KV Store / 分布式存储（跨实例共享）
 </code></pre>
-<table>
+<div class="table-wrap article-table-wrap" role="region" aria-label="可横向滚动的表格" tabindex="0"><table>
 <thead>
 <tr>
 <th>层级</th>
@@ -1022,7 +1022,7 @@ CPU DRAM（容量层）
 <td>网络、路由、一致性、P99</td>
 <td>LMCache、Mooncake、NIXL、Dynamo 生态</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <h3>8.2 权重 offload 和 KV offload 的区别</h3>
 <p><strong>权重 offload：</strong></p>
 <ul>
@@ -1072,7 +1072,7 @@ $$</p>
 </ol>
 <hr>
 <h2>9. PCIe / NVLink / NVSwitch / IB / C2C / MNNVL</h2>
-<table>
+<div class="table-wrap article-table-wrap" role="region" aria-label="可横向滚动的表格" tabindex="0"><table>
 <thead>
 <tr>
 <th>互联</th>
@@ -1117,7 +1117,7 @@ $$</p>
 <td>Blackwell NVL72 等 scale-up fabric</td>
 <td>让多节点 GPU 处于更大的 NVLink 域</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <h3>9.1 PCIe</h3>
 <ul>
 <li>通用、普遍存在。</li>
@@ -1174,7 +1174,7 @@ Scale-up 解决“一个模型副本内部怎样高速协同”，典型是 NVLi
 <li>做 30～60 分钟稳态压测，观察碎片、热身、graph capture 和异常请求。</li>
 </ol>
 <h3>10.2 应该记录的指标</h3>
-<table>
+<div class="table-wrap article-table-wrap" role="region" aria-label="可横向滚动的表格" tabindex="0"><table>
 <thead>
 <tr>
 <th>类别</th>
@@ -1209,7 +1209,7 @@ Scale-up 解决“一个模型副本内部怎样高速协同”，典型是 NVLi
 <td>稳定性</td>
 <td>OOM、碎片增长、错误率、长尾请求、性能漂移</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <h3>10.3 记录模板</h3>
 <pre><code class="language-yaml">model:
 revision:
@@ -1276,7 +1276,7 @@ preemption_or_recompute:
 </ul>
 <hr>
 <h2>12. 一页速查</h2>
-<table>
+<div class="table-wrap article-table-wrap" role="region" aria-label="可横向滚动的表格" tabindex="0"><table>
 <thead>
 <tr>
 <th>要问</th>
@@ -1314,7 +1314,7 @@ preemption_or_recompute:
 <td>通信量和有效链路带宽</td>
 <td>NCCL 是否走预期链路</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <hr>
 <h2>13. 可直接背诵的完整回答</h2>
 <blockquote>
