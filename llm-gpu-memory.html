@@ -9,6 +9,8 @@
   <meta property="og:description" content="一套从公式、手算到生产压测的完整估算方法。">
   <meta property="og:type" content="article">
   <title>跑一个大模型，需要多少显存、多少 GPU？</title>
+  <script>window.MathJax={tex:{inlineMath:[["$","$"],["\\(","\\)"]],displayMath:[["$$","$$"],["\\[","\\]"]]},options:{skipHtmlTags:["script","noscript","style","textarea","pre","code"]}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
   <style>
     :root {
       --ink: #102331;
@@ -145,6 +147,36 @@
     .sources { columns: 2; column-gap: 28px; margin: 20px 0 0; padding: 0; list-style: none; }
     .sources li { break-inside: avoid; margin: 0 0 8px; color: var(--muted); font-size: 11px; }
     .sources a { color: var(--blue); }
+
+    .article-shell { padding-top: 78px; }
+    .article { width: min(900px, 100%); margin: 0 auto; }
+    .article > h2 { margin-top: 86px; padding-top: 6px; font-size: clamp(31px, 5vw, 50px); }
+    .article > h2:first-child { margin-top: 0; }
+    .article h3 { margin: 38px 0 12px; color: #174f68; font-size: 22px; line-height: 1.28; letter-spacing: -.025em; }
+    .article h4 { margin: 27px 0 9px; font-size: 17px; }
+    .article p { margin: 13px 0; color: #425662; }
+    .article strong { color: var(--ink); }
+    .article ul, .article ol { margin: 14px 0; padding-left: 25px; color: #425662; }
+    .article li { margin: 7px 0; }
+    .article blockquote { margin: 22px 0; padding: 17px 20px; color: #244958; background: var(--soft); border: 1px solid #c6dfdf; border-left: 5px solid var(--cyan-dark); border-radius: 13px; }
+    .article blockquote p { margin: 5px 0; color: inherit; }
+    .article pre { margin: 20px 0; padding: 18px 20px; overflow-x: auto; color: #d8f9f5; background: #0d2230; border-radius: 14px; font-size: 12px; line-height: 1.55; }
+    .article :not(pre) > code { padding: 2px 6px; color: #075f61; background: #e4f0f0; border-radius: 5px; font-size: .88em; }
+    .article table { min-width: 650px; }
+    .article table:not(:first-child) { margin-top: 5px; }
+    .article hr { height: 1px; margin: 64px 0; background: var(--line); border: 0; }
+    .article a { color: var(--blue); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    .article .MathJax { overflow-x: auto; overflow-y: hidden; }
+    .article p:has(> mjx-container[display="true"]) { margin: 24px 0; padding: 18px; overflow-x: auto; background: #f7fafb; border: 1px solid var(--line); border-radius: 13px; }
+    .concept-supplement { margin-top: 82px; padding: 31px; background: #f0f7f7; border: 1px solid #c9dfdf; border-radius: 22px; }
+    .concept-supplement h2 { font-size: clamp(28px, 4vw, 42px); }
+    .concept-supplement h3 { margin-top: 30px; }
+    @media (max-width: 700px) {
+      .article-shell { padding-top: 60px; }
+      .article > h2 { margin-top: 64px; }
+      .article table { min-width: 590px; }
+      .concept-supplement { padding: 21px; }
+    }
     footer { padding: 35px 20px 52px; color: rgba(255,255,255,.58); background: var(--night); font-size: 12px; text-align: center; }
     @media (max-width: 780px) {
       .topnav a:not(:last-child) { display: none; }
@@ -175,7 +207,7 @@
     <a class="brand" href="index.html">Pages / Learn</a>
     <div class="topnav">
       <a href="#calculator">计算器</a>
-      <a href="#framework">回答框架</a>
+      <a href="#complete-guide">完整手册</a>
       <a href="#calculator">开始计算 →</a>
     </div>
   </nav>
@@ -239,264 +271,1101 @@
       </div>
     </section>
 
-    <section class="section" id="framework">
+    <section class="section alt article-shell" id="complete-guide">
       <div class="wrap">
-        <div class="section-head">
-          <div><p class="kicker">Interview answer</p><h2>面试时，用六步回答</h2></div>
-          <p class="section-intro">先给方法，再给数字；同时区分最小可跑配置和满足生产 SLA 的建议配置。</p>
-        </div>
-        <div class="answer">
-          <div class="answer-card">
-            <strong>30 秒版本</strong>
-            <p>不能只看参数量。推理显存至少包括模型权重、KV Cache、峰值激活与工作区、框架和通信预留。算完容量后，还要根据 TP/PP/EP/DP 和互联拓扑判断 GPU 数，最后用目标上下文、并发与 SLA 做 profile。</p>
-          </div>
-          <div class="steps">
-            <div class="step"><div><b>明确 workload</b><span>模型结构、推理/训练、精度、上下文、并发与 SLA。</span></div></div>
-            <div class="step"><div><b>计算权重</b><span>参数量 × 平均字节，再加量化 scale、元数据与未量化层。</span></div></div>
-            <div class="step"><div><b>计算 KV</b><span>每 token KV 字节 × 所有活跃请求的 token 总数。</span></div></div>
-            <div class="step"><div><b>估算峰值工作区</b><span>Prefill chunk、CUDA Graph、NCCL、logits 与临时 workspace。</span></div></div>
-            <div class="step"><div><b>映射并行和拓扑</b><span>TP/EP 放高速域，DP/较粗 PP 更适合跨节点。</span></div></div>
-            <div class="step"><div><b>压测校准</b><span>给出“最小可跑”和“生产建议”两组答案。</span></div></div>
-          </div>
-        </div>
-      </div>
-    </section>
+        <article class="article">
+<blockquote>
+<p><strong>摘要</strong> 一句话答案
+先定义模型、精度、上下文、并发和性能目标；再分别计算<strong>权重、KV Cache、峰值激活/工作区、运行时预留</strong>；最后根据 TP/PP/EP/DP 的切分方式与互联拓扑，把容量下界向上取整到一个可运行、可达到 SLA 的 GPU 配置。</p>
+</blockquote>
+<p>这道题真正考察的不是“会不会用参数量乘 2”，而是能否把以下三件事分开：</p>
+<ol>
+<li><strong>跑得下</strong>：显存容量是否足够。</li>
+<li><strong>跑得快</strong>：算力、HBM 带宽和 GPU 间通信是否足够。</li>
+<li><strong>跑得稳</strong>：在真实请求分布和峰值压力下，是否满足 TTFT、ITL、吞吐与 P99 延迟目标。</li>
+</ol>
+<hr>
+<h2>0. 面试时先问什么</h2>
+<p>不要立刻报 GPU 数量。先确认：</p>
+<ol>
+<li>“跑”指的是在线推理、离线推理、LoRA 微调，还是全量训练？</li>
+<li>模型是 Dense 还是 MoE？总参数、激活参数和模型结构是什么？</li>
+<li>权重精度、激活精度、KV Cache 精度分别是什么？</li>
+<li>最大上下文、平均输入长度、平均输出长度和并发是多少？</li>
+<li>性能目标是什么：吞吐、TTFT、ITL，还是成本优先？</li>
+<li>GPU 型号、单卡显存和互联拓扑是什么？是 PCIe、NVLink/NVSwitch、IB，还是 MNNVL？</li>
+</ol>
+<blockquote>
+<p><strong>注意</strong> 推理和训练不能混算
+本文主线是 decoder-only LLM 的在线推理。训练还要保存梯度、优化器状态和更多训练激活。以 Adam 为例，朴素混合精度训练仅模型状态就可能达到约 16 bytes/parameter，之后还要加激活；它与推理不是一个数量级的问题。</p>
+</blockquote>
+<hr>
+<h2>1. 面试回答模板</h2>
+<h3>1.1 30 秒版本</h3>
+<blockquote>
+<p>不能只看参数量。推理显存至少包括四块：模型权重、KV Cache、峰值激活与算子工作区、框架和通信预留。权重由参数量和权重量化精度决定；KV Cache 由层数、KV 头数、head dimension、KV 精度以及所有活跃 token 数决定。GPU 数量还要看 TP/PP/EP 怎么切、DP 是否复制，以及 GPU 间是 PCIe、NVLink 还是跨节点 IB。我的做法是先给出理论容量下界，再留运行空间，最后用目标上下文和并发做实际 profile 和 benchmark。</p>
+</blockquote>
+<h3>1.2 2 分钟版本：六步法</h3>
+<ol>
+<li>明确场景：模型结构、推理还是训练、精度、上下文、并发和 SLA。</li>
+<li>算权重：参数量 × 平均存储字节，再加量化元数据和未量化层。</li>
+<li>算 KV：每 token 的 K+V 元素数 × KV dtype 字节 × 全部活跃 token。</li>
+<li>估峰值工作内存：prefill chunk、单轮最大 token、CUDA Graph、NCCL buffer、logits 和临时 workspace。</li>
+<li>映射并行与拓扑：Dense 常用 TP/PP；MoE 还会使用 EP；DP 增加副本吞吐但一般不降低单副本权重。</li>
+<li>给出两组数字：<strong>最小可跑配置</strong>和<strong>满足目标 workload/SLA 的建议配置</strong>。</li>
+</ol>
+<blockquote>
+<p><strong>提示</strong> 面试加分句
+显存决定能不能放下，HBM 带宽、计算与互联决定跑得好不好；最少 GPU 数和满足 SLA 的 GPU 数通常不是同一个答案。</p>
+</blockquote>
+<hr>
+<h2>2. 统一显存账本</h2>
+<p>总显存近似为：</p>
+<p>$$
+M_{total}\approx M_{weights}+M_{KV}+M_{activation/workspace}+M_{runtime}+M_{optional}
+$$</p>
+<p>其中：</p>
+<ul>
+<li>$M_{weights}$：模型权重和量化元数据。</li>
+<li>$M_{KV}$：所有活跃请求的 KV Cache。</li>
+<li>$M_{activation/workspace}$：激活、attention/GEMM 临时空间、prefill 峰值。</li>
+<li>$M_{runtime}$：CUDA context、allocator、CUDA Graph、NCCL、调度器等。</li>
+<li>$M_{optional}$：LoRA、draft model、视觉编码器、额外 cache 等。</li>
+</ul>
+<blockquote>
+<p><strong>说明</strong> 单位
+GPU 厂商常用十进制 GB；程序日志和手算经常使用 GiB。$1\text{ GiB}=2^{30}$ bytes，$1\text{ GB}=10^9$ bytes。计算时要统一口径。</p>
+</blockquote>
+<h3>2.1 权重显存</h3>
+<p>理论公式：</p>
+<p>$$
+M_{weights}=P\times\frac{b_w}{8}
+$$</p>
+<ul>
+<li>$P$：参数量。</li>
+<li>$b_w$：平均每参数位数。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>权重格式</th>
+<th align="right">理论字节/参数</th>
+<th align="right">70B 理论大小</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>BF16 / FP16</td>
+<td align="right">2</td>
+<td align="right">130.4 GiB</td>
+<td>精度稳，容量最大</td>
+</tr>
+<tr>
+<td>FP8 / INT8</td>
+<td align="right">1</td>
+<td align="right">65.2 GiB</td>
+<td>性能取决于硬件和 kernel</td>
+</tr>
+<tr>
+<td>INT4 / W4A16</td>
+<td align="right">0.5</td>
+<td align="right">32.6 GiB</td>
+<td>还要加 scale、zero-point、padding 等</td>
+</tr>
+</tbody></table>
+<p>实际值为什么大于理论值：</p>
+<ul>
+<li>分组量化需要 scale，有些格式还要 zero-point。</li>
+<li>权重需要 packing 和对齐。</li>
+<li>embedding、norm、lm_head 或敏感层可能保持高精度。</li>
+<li>checkpoint 可能包含额外模块，例如 MTP/draft 权重。</li>
+<li>引擎加载后的布局不一定等于磁盘文件布局。</li>
+</ul>
+<p>因此，更可靠的顺序是：</p>
+<ol>
+<li>用公式做第一轮估算。</li>
+<li>查看 checkpoint 实际文件大小和量化配置。</li>
+<li>以引擎加载后的 profile 为准。</li>
+</ol>
+<h3>2.2 KV Cache</h3>
+<p>对普通 decoder-only、每层均使用 attention 的模型：</p>
+<p>$$
+B_{KV/token}=2\times L\times H_{kv}\times D_{head}\times B_{dtype}
+$$</p>
+<p>其中：</p>
+<ul>
+<li>2：K 和 V 两份。</li>
+<li>$L$：层数。</li>
+<li>$H_{kv}$：KV heads 数，不是 query heads 数。</li>
+<li>$D_{head}=hidden_size/H_q$。</li>
+<li>$B_{dtype}$：每个 KV 元素的字节数，例如 BF16 为 2，FP8 为 1。</li>
+</ul>
+<p>全部 KV Cache：</p>
+<p>$$
+M_{KV}=B_{KV/token}\times\sum_i T_i
+$$</p>
+<p>$T_i$ 是第 $i$ 个活跃请求已经缓存的 token 数。这里最重要的是<strong>所有活跃 token 的总数</strong>，而不只是 <code>max_model_len</code>。</p>
+<h4>哪些结构会改变 KV 公式</h4>
+<ul>
+<li><strong>MHA</strong>：query heads 和 KV heads 通常相同，KV 最大。</li>
+<li><strong>GQA</strong>：多个 query heads 共享一组 K/V，按 $H_{kv}/H_q$ 比例降低 KV。</li>
+<li><strong>MQA</strong>：所有 query heads 共享一个 K/V head，KV 更小。</li>
+<li><strong>MLA</strong>：保存低维 latent 和额外位置状态，不能直接套普通 GQA 公式。</li>
+<li><strong>Sliding-window/local attention</strong>：只保留窗口内或特定层的历史状态。</li>
+<li><strong>Hybrid attention/SSM</strong>：不同层的状态类型不同，应逐类计算。</li>
+</ul>
+<h4>TP 下 KV 是否直接除以 TP</h4>
+<p>不一定。</p>
+<ul>
+<li>如果 KV heads 能够被 TP 均匀切分，KV 通常近似按 TP 分片。</li>
+<li>如果 TP 大于 KV heads，部分实现可能复制 KV heads，而不是继续线性缩小。</li>
+<li>CP、特殊 attention backend、混合模型也会改变切分方式。</li>
+</ul>
+<p>所以更准确的说法是：</p>
+<p>$$
+M_{KV/GPU}\approx\frac{M_{KV}}{S_{KV}}
+$$</p>
+<p>$S_{KV}$ 是实际 KV shard factor，要根据模型结构和引擎实现确认，不能永远假设等于 TP。</p>
+<h3>2.3 激活和工作区</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>主要随什么增长</th>
+<th>常见控制方法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Prefill 激活/临时张量</td>
+<td>单轮 token 数、hidden size</td>
+<td>chunked prefill；降低单轮 token 上限</td>
+</tr>
+<tr>
+<td>Attention workspace</td>
+<td>backend、序列长度、heads</td>
+<td>FlashAttention、FlashInfer、TRT kernel</td>
+</tr>
+<tr>
+<td>CUDA Graph</td>
+<td>capture 的 batch/token buckets</td>
+<td>减少 bucket；缩小 capture 范围；必要时 eager</td>
+</tr>
+<tr>
+<td>NCCL buffer</td>
+<td>TP/EP/PP 与通信算法</td>
+<td>把细粒度并行放在高速互联域内</td>
+</tr>
+<tr>
+<td>Logits/sampling</td>
+<td>batch、词表、logprobs</td>
+<td>限制 logprobs 范围和并发</td>
+</tr>
+<tr>
+<td>Allocator/碎片</td>
+<td>动态 shape、进程、运行历史</td>
+<td>留余量；使用稳定 shape/bucket</td>
+</tr>
+<tr>
+<td>附加模型</td>
+<td>draft model、LoRA、视觉编码器</td>
+<td>单独记账</td>
+</tr>
+</tbody></table>
+<p>“预留 10%～20%”只能作为初始预算，不能替代 profile。引擎版本、CUDA Graph、kernel、请求 shape 和运行时间都会改变峰值。</p>
+<hr>
+<h2>3. Attention、FlashAttention 和 Paged Attention</h2>
+<h3>3.1 Prefill 和 Decode 是两种 workload</h3>
+<p><strong>Prefill：</strong></p>
+<ul>
+<li>一次处理大量 prompt token。</li>
+<li>GEMM 并行度高，长序列 attention 计算昂贵。</li>
+<li>普通 dense attention 的计算量随序列长度近似 $O(S^2)$。</li>
+<li>长 prompt 容易产生激活和 workspace 峰值。</li>
+<li>chunked prefill 能降低峰值，但可能增加调度轮次和 TTFT。</li>
+</ul>
+<p><strong>Decode：</strong></p>
+<ul>
+<li>每轮通常给每条活跃序列生成一个 token。</li>
+<li>每轮要读取大量权重，并读取历史 KV。</li>
+<li>低 batch 下经常受 HBM 带宽和 kernel launch 限制。</li>
+<li>上下文越长，每生成一个 token 要扫描的 KV 越多。</li>
+</ul>
+<h3>3.2 FlashAttention 到底省什么</h3>
+<p>FlashAttention 通过 tiling 在片上 SRAM 和 HBM 之间更高效地搬运数据，避免显式物化巨大的 attention score 中间矩阵。</p>
+<p>它的关键效果是：</p>
+<ul>
+<li>显著减少 HBM IO。</li>
+<li>将 attention 中间内存从二次级别降到近似线性级别。</li>
+<li>提升实际速度。</li>
+</ul>
+<p>但它<strong>没有把标准 dense attention 的计算复杂度从 $O(S^2)$ 变成 $O(S)$</strong>。</p>
+<h3>3.3 Paged Attention 到底省什么</h3>
+<p>Paged Attention 把 KV Cache 按 block/page 管理：</p>
+<ul>
+<li>减少预分配和内存碎片。</li>
+<li>允许不同长度请求共享 token pool。</li>
+<li>便于动态批处理、抢占、复用和换出。</li>
+</ul>
+<p>它主要改善的是<strong>物理内存管理效率</strong>，不会改变一个有效 KV token 的理论字节数。</p>
+<h3>3.4 Prefix Cache</h3>
+<p>Prefix cache 保存公共前缀对应的 KV，使后续请求不必重新 prefill。</p>
+<p>它可以：</p>
+<ul>
+<li>降低重复前缀的 TTFT。</li>
+<li>减少重复计算。</li>
+<li>提升 agent、多轮对话和长 system prompt 场景的吞吐。</li>
+</ul>
+<p>但需要注意：</p>
+<ul>
+<li>被缓存的 KV 仍然占内存或存储。</li>
+<li>收益取决于 prefix hit rate。</li>
+<li>路由不具备 cache affinity 时，命中率会下降。</li>
+<li>安全隔离场景需要 namespace/salt，避免错误复用。</li>
+</ul>
+<hr>
+<h2>4. TP / PP / DP / EP / CP</h2>
+<table>
+<thead>
+<tr>
+<th>并行方式</th>
+<th>做法</th>
+<th>容量效果</th>
+<th>主要通信与代价</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TP</td>
+<td>一层内部切矩阵或 heads</td>
+<td>降低每卡权重，部分 KV/激活也分片</td>
+<td>每层多次 all-reduce/all-gather</td>
+<td>单机 NVLink/NVSwitch 域优先</td>
+</tr>
+<tr>
+<td>PP</td>
+<td>按层切成多个 stage</td>
+<td>权重按 stage 分摊</td>
+<td>stage 间传激活；pipeline bubble</td>
+<td>模型很大或跨节点</td>
+</tr>
+<tr>
+<td>DP</td>
+<td>复制模型副本，各自接请求</td>
+<td>不降低单副本容量</td>
+<td>在线推理同步较少，但总显存增加</td>
+<td>扩吞吐、做多副本</td>
+</tr>
+<tr>
+<td>EP</td>
+<td>将 MoE experts 分到不同 GPU</td>
+<td>分摊专家权重</td>
+<td>token dispatch/combine，all-to-all</td>
+<td>大 MoE，强依赖互联</td>
+</tr>
+<tr>
+<td>CP/SP</td>
+<td>切序列或上下文维度</td>
+<td>分摊长上下文 KV/激活</td>
+<td>attention 通信与实现复杂</td>
+<td>超长上下文</td>
+</tr>
+</tbody></table>
+<h3>4.1 TP</h3>
+<p>TP 适合解决“单层权重太大，一张卡放不下”的问题。</p>
+<p>优点：</p>
+<ul>
+<li>单卡权重下降。</li>
+<li>同一请求可利用多卡计算。</li>
+<li>在 NVLink/NVSwitch 域内通常效率较高。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>每层都可能通信。</li>
+<li>小 batch 或慢互联下，通信占比很高。</li>
+<li>TP 越大，单卡工作越碎，未必线性加速。</li>
+</ul>
+<h3>4.2 PP</h3>
+<p>PP 把不同层放在不同 GPU/stage 上。</p>
+<p>优点：</p>
+<ul>
+<li>跨节点时，通信频率通常低于大 TP。</li>
+<li>对极大模型容易扩展。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>pipeline bubble。</li>
+<li>单请求延迟可能增加。</li>
+<li>不均匀层或 MoE 层容易产生 stage imbalance。</li>
+</ul>
+<h3>4.3 DP</h3>
+<p>普通 DP 是复制整个模型，每个副本处理不同请求。</p>
+<p>因此：</p>
+<ul>
+<li>DP 能扩展总吞吐。</li>
+<li>DP 不能解决单个模型副本放不下的问题。</li>
+<li>对在线推理，DP 副本可配合负载均衡和 KV-aware routing。</li>
+</ul>
+<h3>4.4 EP</h3>
+<p>MoE 的 experts 占据大量总参数。EP 把 experts 分到不同 GPU 上。</p>
+<p>注意：</p>
+<ul>
+<li>每个 token 只激活少数 experts，不代表只需要存激活参数对应的权重。</li>
+<li>token 要被 dispatch 到专家所在 GPU，再把结果 combine 回来。</li>
+<li>通信模式常为 all-to-all，比 dense TP 更容易受到网络和拥塞影响。</li>
+<li>路由负载不均会形成 straggler。</li>
+</ul>
+<h3>4.5 拓扑映射原则</h3>
+<ol>
+<li>TP 和 EP 是高频、细粒度通信，尽量放在 NVLink/NVSwitch 或 MNNVL 域内。</li>
+<li>跨节点只有 IB/RoCE 时，优先把 DP 或较粗粒度 PP 放到节点边界。</li>
+<li>同样 8 张 GPU，8×PCIe 和 8×NVSwitch 的合理并行策略与性能可能差很多。</li>
+<li>“卡数一样”不代表“系统能力一样”。</li>
+</ol>
+<hr>
+<h2>5. 三个现场实算案例</h2>
+<h2>5.1 Llama 3.1 8B</h2>
+<p>近似配置：</p>
+<ul>
+<li>32 layers</li>
+<li>hidden size = 4096</li>
+<li>query heads = 32</li>
+<li>KV heads = 8</li>
+<li>head dimension = 128</li>
+</ul>
+<p>BF16 KV 每 token：</p>
+<p>$$
+2\times32\times8\times128\times2=131{,}072\text{ bytes}=128\text{ KiB/token}
+$$</p>
+<p>因此，单序列 KV 约为：</p>
+<table>
+<thead>
+<tr>
+<th align="right">上下文</th>
+<th align="right">BF16 KV</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">8K</td>
+<td align="right">1 GiB</td>
+</tr>
+<tr>
+<td align="right">32K</td>
+<td align="right">4 GiB</td>
+</tr>
+<tr>
+<td align="right">128K</td>
+<td align="right">16 GiB</td>
+</tr>
+</tbody></table>
+<p>权重：</p>
+<ul>
+<li>BF16 8B 理论约 14.9 GiB。</li>
+<li>INT8 理论约 7.45 GiB。</li>
+<li>INT4 理论约 3.73 GiB，再加量化开销。</li>
+</ul>
+<p>判断：</p>
+<ul>
+<li>BF16 8B + 单序列 8K 通常能放进 24 GiB GPU。</li>
+<li>BF16 8B + 单序列 32K 可能能放下，但并发和 prefill 峰值受限。</li>
+<li>BF16 8B + 单序列 128K，仅权重和 KV 就约 31 GiB，24 GiB 不可能。</li>
+<li>INT4 降低的是权重；如果 KV 仍为 BF16，长上下文 KV 不会同步缩小。</li>
+</ul>
+<h2>5.2 Llama 3.1 70B</h2>
+<p>近似配置：</p>
+<ul>
+<li>80 layers</li>
+<li>hidden size = 8192</li>
+<li>query heads = 64</li>
+<li>KV heads = 8</li>
+<li>head dimension = 128</li>
+</ul>
+<p>BF16 权重理论值：</p>
+<p>$$
+70\times10^9\times2/2^{30}\approx130.4\text{ GiB}
+$$</p>
+<p>BF16 KV 每 token：</p>
+<p>$$
+2\times80\times8\times128\times2=327{,}680\text{ bytes}=320\text{ KiB/token}
+$$</p>
+<p>单序列 KV：</p>
+<table>
+<thead>
+<tr>
+<th align="right">上下文</th>
+<th align="right">BF16 KV，全模型合计</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">8K</td>
+<td align="right">2.5 GiB</td>
+</tr>
+<tr>
+<td align="right">32K</td>
+<td align="right">10 GiB</td>
+</tr>
+<tr>
+<td align="right">128K</td>
+<td align="right">40 GiB</td>
+</tr>
+</tbody></table>
+<h3>情况 A：TP=2，2×80 GiB</h3>
+<ul>
+<li>每卡权重约 65.2 GiB。</li>
+<li>一个 32K 请求，若 KV 完美按 TP=2 分片，每卡 KV 约 5 GiB。</li>
+<li>权重 + KV 约 70.2 GiB/卡。</li>
+<li>剩余约 9.8 GiB 给 CUDA context、workspace、CUDA Graph、NCCL 和碎片。</li>
+</ul>
+<p>结论：低并发、适当限制 prefill 时可能可跑，但非常紧，需要以真实引擎 profile 为准。</p>
+<h3>情况 B：TP=2，16 路并发，平均每路 8K 活跃 token</h3>
+<p>总 KV：</p>
+<p>$$
+16\times2.5=40\text{ GiB}
+$$</p>
+<p>按 TP=2 分片后，每卡约 20 GiB KV：</p>
+<p>$$
+65.2+20=85.2\text{ GiB/GPU}
+$$</p>
+<p>还没加 workspace 就已经超过 80 GiB，因此不可行。</p>
+<h3>情况 C：TP=4，4×80 GiB</h3>
+<ul>
+<li>每卡权重约 32.6 GiB。</li>
+<li>上述 16×8K KV 每卡约 10 GiB。</li>
+<li>权重 + KV 约 42.6 GiB/卡。</li>
+</ul>
+<p>容量明显宽裕，也有更多空间用于更高并发和 prefill 峰值。</p>
+<blockquote>
+<p><strong>重点</strong> 结论
+“2×80G 能放 BF16 70B 权重”只是权重下界附近，不是通用生产答案。并发、上下文和引擎预留一加入，2×80G 很容易不足。</p>
+</blockquote>
+<h2>5.3 MoE：总参数和激活参数分别代表什么</h2>
+<p>以 DeepSeek-V3 类模型为例，官方资料给出：</p>
+<ul>
+<li>主模型总参数：671B。</li>
+<li>每 token 激活参数：约 37B。</li>
+</ul>
+<p>两个数字的作用不同：</p>
+<ul>
+<li><strong>容量预算</strong>：如果 experts 不做 offload，通常仍要保存全部 expert 权重，因此主要看总参数和实际 checkpoint。</li>
+<li><strong>计算预算</strong>：每个 token 只经过少量 experts，因此主要计算量更接近激活参数，但仍有共享层、路由、通信和负载不均成本。</li>
+</ul>
+<p>常见错误：</p>
+<table>
+<thead>
+<tr>
+<th>错误说法</th>
+<th>更准确的说法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>只激活 37B，所以显存按 37B 算</td>
+<td>错。常驻专家权重通常按总参数或实际分片计算</td>
+</tr>
+<tr>
+<td>671B，所以每 token 都算 671B</td>
+<td>错。每 token 只走少数 experts</td>
+</tr>
+<tr>
+<td>加 EP 就能线性扩展</td>
+<td>未必。all-to-all、负载偏斜和跨节点拓扑都会降低效率</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>6. 从公式得到 GPU 数量</h2>
+<h3>6.1 容量下界</h3>
+<p>假设每卡容量为 $C$，希望使用的安全比例为 $u$：</p>
+<p>$$
+M_{budget/GPU}=C\times u
+$$</p>
+<p>需要满足：</p>
+<p>$$
+M_{weights/GPU}+M_{KV/GPU}+M_{workspace/GPU}+M_{runtime/GPU}&lt;M_{budget/GPU}
+$$</p>
+<p>然后把 GPU 数向上取整到一个模型和 kernel 支持的 TP/PP/EP 组合。</p>
+<p>注意：不同引擎的“利用率”参数口径不同。有的控制整个 executor，有的控制权重 + KV 静态池，有的只按加载权重和 buffer 后的剩余显存给 KV 分配。不能把同一个 <code>0.9</code> 在三套引擎间机械照搬。</p>
+<h3>6.2 性能下界</h3>
+<p>容量可行后，还要问：这些 GPU 能否达到性能目标？</p>
+<h4>Decode 粗略带宽视角</h4>
+<p>低 batch 下，每生成一轮需要读取大量权重，decode 常受 HBM 带宽限制。</p>
+<p>一个非常粗的下界：</p>
+<p>$$
+t_{decode\ step}\gtrsim\frac{bytes\ read\ per\ step}{effective\ HBM\ bandwidth}
+$$</p>
+<p>batch 增大后，相同权重读取可以服务更多 token，算术强度提高，但 KV、激活和调度压力也会上升。</p>
+<h4>Prefill 粗略计算视角</h4>
+<ul>
+<li>大量 GEMM，通常更容易利用 Tensor Core。</li>
+<li>dense attention 随上下文增长很快。</li>
+<li>TTFT 还包括排队、tokenization、调度和通信。</li>
+</ul>
+<h4>通信视角</h4>
+<ul>
+<li>TP：几乎每层都可能发生 collective。</li>
+<li>EP：token all-to-all。</li>
+<li>PP：stage 间传激活并有 bubble。</li>
+<li>跨慢链路切得太细，加 GPU 反而可能更慢。</li>
+</ul>
+<h3>6.3 正确答案应该包含两个数字</h3>
+<p>例如：</p>
+<blockquote>
+<p>最小可跑需要 2×80 GiB；但对于最大 32K、平均 8K 活跃 token、并发 16，并且有明确 P99 TTFT/ITL 目标的在线服务，我会从 4×80 GiB 开始压测，再根据 KV 利用率和吞吐调整。</p>
+</blockquote>
+<hr>
+<h2>7. vLLM / SGLang / TensorRT-LLM 参数地图</h2>
+<blockquote>
+<p><strong>注意</strong> 版本提醒
+这些项目变化很快，默认值可能随版本改变。下面重点记录参数的<strong>控制对象</strong>。实际部署时以当前安装版本的 <code>--help</code> 和对应版本文档为准。</p>
+</blockquote>
+<h3>7.1 vLLM</h3>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>控制什么</th>
+<th>注意事项</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--gpu-memory-utilization</code></td>
+<td>当前 executor 实例的 GPU 显存预算</td>
+<td>默认值曾为 0.9，较新配置可能不同；查当前版本</td>
+</tr>
+<tr>
+<td><code>--kv-cache-memory-bytes</code></td>
+<td>每 GPU KV Cache 的精确字节预算</td>
+<td>设置后会覆盖基于 utilization 的自动推导</td>
+</tr>
+<tr>
+<td><code>--kv-cache-dtype</code></td>
+<td>KV Cache 精度</td>
+<td>FP8 可近似将 KV 减半，但要验证 scale 和精度</td>
+</tr>
+<tr>
+<td><code>--max-num-batched-tokens</code></td>
+<td>单轮最多处理 token 数</td>
+<td>影响 prefill 峰值、调度和吞吐</td>
+</tr>
+<tr>
+<td><code>--max-num-seqs</code></td>
+<td>单轮最大序列数</td>
+<td>限制并发和 CUDA Graph shape</td>
+</tr>
+<tr>
+<td><code>--cpu-offload-gb</code></td>
+<td>权重 CPU offload</td>
+<td>每次 forward 都会搬权重，互联慢时非常昂贵</td>
+</tr>
+<tr>
+<td><code>--kv-offloading-size</code></td>
+<td>KV Cache 的 CPU offload buffer</td>
+<td>新版本可使用 native 或 LMCache backend</td>
+</tr>
+<tr>
+<td><code>--enable-prefix-caching</code></td>
+<td>前缀 KV 复用</td>
+<td>收益取决于前缀命中率</td>
+</tr>
+</tbody></table>
+<p>理解重点：</p>
+<ul>
+<li>vLLM 启动时会 profile 非 KV 开销，再把预算中的剩余部分用于 KV blocks。</li>
+<li>启动日志中可用 KV token capacity 比仅看 <code>max_model_len</code> 更有价值。</li>
+<li><code>max_num_batched_tokens</code> 主要影响一次迭代的工作量，不等于 KV 总容量。</li>
+</ul>
+<h3>7.2 SGLang</h3>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>控制什么</th>
+<th>注意事项</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--mem-fraction-static</code></td>
+<td>模型权重 + KV 静态池占 GPU 显存的比例</td>
+<td>OOM 时降低，但 KV token pool 和并发也会下降</td>
+</tr>
+<tr>
+<td><code>--max-total-tokens</code></td>
+<td>KV 内存池可容纳的总 token 数</td>
+<td>比“最大上下文”更接近总并发容量</td>
+</tr>
+<tr>
+<td><code>--max-running-requests</code></td>
+<td>最大运行请求数</td>
+<td>decode OOM 时可降低</td>
+</tr>
+<tr>
+<td><code>--chunked-prefill-size</code></td>
+<td>prefill 的 chunk 大小</td>
+<td>长 prompt prefill OOM 时优先降低</td>
+</tr>
+<tr>
+<td><code>--max-prefill-tokens</code></td>
+<td>prefill admission 上限</td>
+<td>控制峰值工作量</td>
+</tr>
+<tr>
+<td><code>--kv-cache-dtype</code></td>
+<td>KV Cache 精度</td>
+<td>FP8 需要验证 scale 和质量</td>
+</tr>
+<tr>
+<td><code>--tp-size</code> / <code>--ep-size</code></td>
+<td>TP / EP 并行度</td>
+<td>要结合 GPU 拓扑</td>
+</tr>
+</tbody></table>
+<p>SGLang 的 RadixAttention 用于复用前缀 KV；HiCache 将缓存扩展为 GPU、CPU 和存储多层。</p>
+<h3>7.3 TensorRT-LLM</h3>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>控制什么</th>
+<th>注意事项</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>free_gpu_memory_fraction</code></td>
+<td>权重和 buffer 加载后，剩余显存中分给 KV 的比例</td>
+<td>文档常见默认 0.9；不是总显存的 90%</td>
+</tr>
+<tr>
+<td><code>max_tokens</code></td>
+<td>KV Cache 最大 token 数</td>
+<td>与 fraction 同时设置时取更小容量</td>
+</tr>
+<tr>
+<td><code>max_num_tokens</code></td>
+<td>一次迭代/engine shape 的 token 上限</td>
+<td>影响 activation/workspace；具体口径看 API</td>
+</tr>
+<tr>
+<td><code>kv_cache_config.dtype</code></td>
+<td>KV Cache dtype</td>
+<td>可选 BF16/FP16/FP8 等，依硬件与 backend</td>
+</tr>
+<tr>
+<td><code>enable_block_reuse</code></td>
+<td>跨请求 KV block 复用</td>
+<td>生产上要考虑 cache salt/隔离</td>
+</tr>
+<tr>
+<td><code>host_cache_size</code></td>
+<td>host KV cache 容量</td>
+<td>需要足够快的 host link 和预取策略</td>
+</tr>
+<tr>
+<td><code>tensor_parallel_size</code> / <code>pipeline_parallel_size</code> / <code>moe_expert_parallel_size</code></td>
+<td>并行切分</td>
+<td>通信必须映射到合适拓扑</td>
+</tr>
+</tbody></table>
+<h3>7.4 容易被漏掉的软件 buffer</h3>
+<ul>
+<li>CUDA context 和库初始化。</li>
+<li>CUDA Graph capture buckets。</li>
+<li>NCCL communicator 和通信 buffer。</li>
+<li>Attention/GEMM workspace。</li>
+<li>请求输入输出和 sampling buffer。</li>
+<li>全词表 logits、logprobs。</li>
+<li>Prefix cache 的 page 和元数据。</li>
+<li>Scheduler bookkeeping。</li>
+<li>量化 scale 和临时反量化空间。</li>
+<li>LoRA adapters。</li>
+<li>Speculative decoding 的 draft model、draft KV、verify workspace。</li>
+<li>多模态模型的视觉编码器和图像 embedding。</li>
+</ul>
+<hr>
+<h2>8. KV Cache offload</h2>
+<h3>8.1 分层结构</h3>
+<p>可以把 KV Cache 看成一个存储层级：</p>
+<pre><code class="language-text">GPU HBM（热 KV，最低延迟）
+    ↓ evict / prefetch
+CPU DRAM（容量层）
+    ↓
+本地 NVMe（冷层）
+    ↓
+远端 KV Store / 分布式存储（跨实例共享）
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>优点</th>
+<th>瓶颈</th>
+<th>典型组件/路径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GPU HBM</td>
+<td>最低延迟、最高带宽</td>
+<td>容量贵且有限</td>
+<td>Paged KV、Radix cache、TRT KV manager</td>
+</tr>
+<tr>
+<td>CPU DRAM</td>
+<td>容量大、成本低</td>
+<td>PCIe/C2C、NUMA</td>
+<td>vLLM native/LMCache、SGLang HiCache、TRT host cache</td>
+</tr>
+<tr>
+<td>本地 NVMe</td>
+<td>容量更大</td>
+<td>延迟和吞吐远低于 HBM</td>
+<td>LMCache、HiCache storage backend</td>
+</tr>
+<tr>
+<td>远端 KV/存储</td>
+<td>跨实例共享、容量解耦</td>
+<td>网络、路由、一致性、P99</td>
+<td>LMCache、Mooncake、NIXL、Dynamo 生态</td>
+</tr>
+</tbody></table>
+<h3>8.2 权重 offload 和 KV offload 的区别</h3>
+<p><strong>权重 offload：</strong></p>
+<ul>
+<li>每层、每次 forward 都可能需要把权重搬回 GPU。</li>
+<li>decode 时会形成持续的数据搬运。</li>
+<li>经 PCIe 时很容易成为主瓶颈。</li>
+</ul>
+<p><strong>KV offload：</strong></p>
+<ul>
+<li>可以只换出暂时不活跃的 page。</li>
+<li>如果请求恢复前能异步预取，代价可能更可控。</li>
+<li>如果活跃长上下文每个 decode step 都频繁缺页，性能仍会迅速恶化。</li>
+</ul>
+<h3>8.3 Offload 的量纲分析</h3>
+<p>最低传输时间：</p>
+<p>$$
+t_{transfer}\ge\frac{bytes\ to\ move}{effective\ link\ bandwidth}
+$$</p>
+<p>例如要从 CPU 搬 10 GiB KV：</p>
+<ul>
+<li>有效带宽 32 GB/s：纯传输下界约 0.31 秒。</li>
+<li>有效带宽 400 GB/s：纯传输下界约 25 毫秒。</li>
+</ul>
+<p>真实时间还要加入：</p>
+<ul>
+<li>协议和软件开销。</li>
+<li>NUMA 路径。</li>
+<li>并发流量和链路争用。</li>
+<li>page lookup、序列化和调度。</li>
+<li>是否可以和计算重叠。</li>
+</ul>
+<h3>8.4 相关组件</h3>
+<ul>
+<li><strong>LMCache</strong>：与 vLLM 等引擎连接，将 KV 扩展到 CPU、磁盘或远端层。</li>
+<li><strong>SGLang HiCache</strong>：GPU、CPU、storage 多级 KV cache。</li>
+<li><strong>Mooncake</strong>：面向分布式 KV/传输与服务解耦的组件生态。</li>
+<li><strong>NIXL</strong>：为 GPU/CPU/存储间数据传输提供抽象和优化路径。</li>
+<li><strong>NVIDIA Dynamo</strong>：可做 KV-aware routing、prefill/decode disaggregation 和多实例编排。</li>
+<li><strong>TensorRT-LLM KV Cache Manager</strong>：block reuse、host cache、优先级淘汰等。</li>
+</ul>
+<h3>8.5 是否值得 offload：四个问题</h3>
+<ol>
+<li>前缀命中率和未来复用率有多高？</li>
+<li>一次恢复需要搬多少 GiB？</li>
+<li>传输能否与计算重叠，是否有异步 prefetch？</li>
+<li>路由是否 KV-aware，能否把请求送回拥有 cache 的实例？</li>
+</ol>
+<hr>
+<h2>9. PCIe / NVLink / NVSwitch / IB / C2C / MNNVL</h2>
+<table>
+<thead>
+<tr>
+<th>互联</th>
+<th>连接对象</th>
+<th>主要角色</th>
+<th>对推理并行的意义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PCIe</td>
+<td>GPU↔CPU，或无 NVLink 时 GPU↔GPU</td>
+<td>通用 I/O 和 fallback P2P</td>
+<td>TP/EP 容易受通信限制</td>
+</tr>
+<tr>
+<td>NVLink</td>
+<td>GPU↔GPU</td>
+<td>高带宽低延迟 P2P</td>
+<td>适合单机 TP/EP</td>
+</tr>
+<tr>
+<td>NVSwitch</td>
+<td>多 GPU 交换网络</td>
+<td>构建高双截面 NVLink 域</td>
+<td>8 卡 HGX/DGX 内适合较大 TP</td>
+</tr>
+<tr>
+<td>InfiniBand</td>
+<td>跨服务器 NIC/GPU RDMA</td>
+<td>集群 scale-out</td>
+<td>常用于跨节点 DP/PP；大 TP/EP 需强网络</td>
+</tr>
+<tr>
+<td>NVLink-C2C</td>
+<td>Grace CPU↔Hopper/Blackwell GPU</td>
+<td>一致性高带宽 CPU-GPU 互联</td>
+<td>有利于 CPU 内存扩展与 offload</td>
+</tr>
+<tr>
+<td>MNNVL</td>
+<td>跨 OS 节点的 rack-scale NVLink 域</td>
+<td>Blackwell NVL72 等 scale-up fabric</td>
+<td>让多节点 GPU 处于更大的 NVLink 域</td>
+</tr>
+</tbody></table>
+<h3>9.1 PCIe</h3>
+<ul>
+<li>通用、普遍存在。</li>
+<li>CPU offload 和无 NVLink 的 GPU P2P 依赖它。</li>
+<li>单向有效带宽通常只有几十 GB/s 量级，远低于 HBM。</li>
+<li>要注意 CPU socket、NUMA 和 PCIe switch 拓扑。</li>
+</ul>
+<h3>9.2 NVLink / NVSwitch</h3>
+<ul>
+<li>NVLink 是 GPU 间高速链路。</li>
+<li>NVSwitch 将多张 GPU 连接成高双截面的交换网络。</li>
+<li>H100 官方资料给出第四代 NVLink 每 GPU 最高 900 GB/s aggregate GPU-to-GPU bandwidth。</li>
+<li>具体比较时要确认是单向、双向还是 aggregate 口径。</li>
+</ul>
+<h3>9.3 InfiniBand</h3>
+<ul>
+<li>用于跨节点扩展。</li>
+<li>NDR 400 Gb/s 单端口线速约 50 GB/s，实际有效带宽还要扣除协议和系统开销。</li>
+<li>GPUDirect RDMA 可减少 CPU 中转。</li>
+<li>网络拓扑、rail 数、NCCL 配置和拥塞会影响实际性能。</li>
+</ul>
+<h3>9.4 NVLink-C2C</h3>
+<p>NVLink-C2C 主要连接 Grace CPU 与 Hopper/Blackwell GPU：</p>
+<ul>
+<li>提供高带宽、内存一致性的 CPU-GPU 访问。</li>
+<li>适合统一内存和 CPU memory oversubscription/offload。</li>
+<li>它不是普通意义上用于 GPU collective 的 GPU-GPU NVLink。</li>
+</ul>
+<h3>9.5 MNNVL</h3>
+<p>官方常用缩写是 <strong>MNNVL（Multi-Node NVLink）</strong>。</p>
+<ul>
+<li>跨多个 OS 节点建立 rack-scale NVLink domain。</li>
+<li>GB200 NVL72 将 72 张 GPU 放入一个 NVLink 域。</li>
+<li>NVIDIA 官方资料给出第五代 NVLink 每 GPU 1.8 TB/s，整架约 130 TB/s aggregate。</li>
+<li>依赖 Fabric Manager、IMEX、NCCL 等系统软件正确配置。</li>
+</ul>
+<blockquote>
+<p><strong>提示</strong> 面试表达
+Scale-up 解决“一个模型副本内部怎样高速协同”，典型是 NVLink/NVSwitch/MNNVL；scale-out 解决“更多节点和副本怎样扩展”，典型是 InfiniBand/RoCE。二者的并行映射不同。</p>
+</blockquote>
+<hr>
+<h2>10. 从理论估算到生产压测</h2>
+<h3>10.1 完整流程</h3>
+<ol>
+<li>固定模型 revision、量化 checkpoint、driver/CUDA、引擎版本和 attention backend。</li>
+<li>读取模型配置：layers、hidden size、query heads、KV heads、head dimension、attention 类型、MoE experts/top-k。</li>
+<li>按实际 checkpoint 和加载 profile 校准权重。</li>
+<li>从真实请求日志获取 input/output length、活跃 token、并发和 prefix 重复率分布。</li>
+<li>计算理论权重和 KV，得到最小卡数与初始并行方案。</li>
+<li>启动引擎，记录每卡权重、非 KV 显存和可用 KV token capacity。</li>
+<li>分别压测 prefill-heavy、decode-heavy、长上下文、突发流量和混合请求。</li>
+<li>记录 TTFT、ITL、throughput、排队时间、preemption/recompute、cache hit 和峰值显存。</li>
+<li>做单卡、单机多卡、跨节点对照，确认 NCCL 实际使用预期链路。</li>
+<li>做 30～60 分钟稳态压测，观察碎片、热身、graph capture 和异常请求。</li>
+</ol>
+<h3>10.2 应该记录的指标</h3>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>指标</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>容量</td>
+<td>每卡权重、非 KV 占用、KV token capacity、峰值显存</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>TTFT P50/P95/P99、ITL P50/P95/P99、端到端延迟</td>
+</tr>
+<tr>
+<td>吞吐</td>
+<td>input tokens/s、output tokens/s、requests/s</td>
+</tr>
+<tr>
+<td>调度</td>
+<td>queue time、running/queued requests、preemption、recompute</td>
+</tr>
+<tr>
+<td>Cache</td>
+<td>prefix hit rate、GPU/CPU/storage hit、eviction、prefetch</td>
+</tr>
+<tr>
+<td>通信</td>
+<td>NCCL algorithm、NVLink/IB 利用率、all-reduce/all-to-all 时间</td>
+</tr>
+<tr>
+<td>稳定性</td>
+<td>OOM、碎片增长、错误率、长尾请求、性能漂移</td>
+</tr>
+</tbody></table>
+<h3>10.3 记录模板</h3>
+<pre><code class="language-yaml">model:
+revision:
+weight_quantization:
+kv_cache_dtype:
+engine_and_version:
+attention_backend:
 
-    <section class="section alt" id="ledger">
-      <div class="wrap">
-        <div class="section-head">
-          <div><p class="kicker">Memory ledger</p><h2>显存不是一笔账，而是四笔</h2></div>
-          <p class="section-intro">权重通常是固定底座；KV 随全部活跃 token 增长；工作区随单轮 prefill/batch 峰值变化；运行时预留则由引擎和 kernel 决定。</p>
-        </div>
-        <div class="ledger">
-          <article class="ledger-card" data-number="1"><b>模型权重</b><p>参数量 × 平均存储字节。量化格式还包含 scale、zero-point、packing、padding 与未量化层。</p></article>
-          <article class="ledger-card" data-number="2"><b>KV Cache</b><p>每 token 的 K/V 状态 × 所有活跃 token。它会随上下文、输出长度和并发持续增长。</p></article>
-          <article class="ledger-card" data-number="3"><b>激活与工作区</b><p>Prefill 激活、Attention/GEMM workspace、logits、采样和临时 tensor。峰值常由单轮 token 数决定。</p></article>
-          <article class="ledger-card" data-number="4"><b>运行时预留</b><p>CUDA context、CUDA Graph、NCCL、allocator 碎片，以及 LoRA、draft model、视觉编码器等附加模块。</p></article>
-        </div>
-        <div class="equation">M_weights = parameters × bits_per_weight ÷ 8</div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>权重格式</th><th>理论字节/参数</th><th>70B 理论大小</th><th>提醒</th></tr></thead>
-            <tbody>
-              <tr><td>BF16 / FP16</td><td>2.0</td><td>130.4 GiB</td><td>容量最大，精度稳定</td></tr>
-              <tr><td>FP8 / INT8</td><td>1.0</td><td>65.2 GiB</td><td>速度取决于硬件和 kernel</td></tr>
-              <tr><td>INT4 / W4A16</td><td>0.5</td><td>32.6 GiB</td><td>另加 scale、元数据和高精度层</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="equation">B_KV/token = 2(K+V) × L × H_kv × D_head × bytes(KV dtype)</div>
-        <div class="prose">
-          <p>多个请求长度不同，所以总 KV 更准确地写成 <strong>M_KV = B_KV/token × Σ Tᵢ</strong>。这里的 Σ Tᵢ 就是所有活跃请求实际缓存 token 的总数；如果有 B 个等长请求，每个 T 个 token，它才简化为 B × T。</p>
-          <p>Paged Attention 会减少碎片并按 block 动态分配，但不会改变一个有效 KV token 的理论字节数。Prefix cache 能让相同前缀只保存一次，因此物理占用更接近“唯一 KV pages 数”。</p>
-        </div>
-      </div>
-    </section>
+gpu_model:
+gpu_count:
+topology:
+tp:
+pp:
+dp:
+ep:
+cp:
 
-    <section class="section" id="attention">
-      <div class="wrap">
-        <div class="section-head">
-          <div><p class="kicker">Attention fundamentals</p><h2>Hq、Hkv、Dhead 到底是什么</h2></div>
-          <p class="section-intro">Head 不是把原始 hidden state 复制多份，也不是直接切片；它是对完整 hidden state 做不同的可学习投影，再 reshape 成多个较小向量。</p>
-        </div>
-        <div class="attention-grid">
-          <article class="diagram">
-            <h3>从 hidden state 到多个 heads</h3>
-            <div class="shape-flow">
-              <div class="shape">X · [N, D_model]</div>
-              <div class="shape-row"><div class="shape">WQ</div><span class="op">→</span><div class="shape">Q · [N, Hq, Dhead]</div></div>
-              <div class="shape-row"><div class="shape">WK / WV</div><span class="op">→</span><div class="shape">K/V · [N, Hkv, Dhead]</div></div>
-              <div class="shape">Attention heads → concat → Wo → [N, D_model]</div>
-            </div>
-            <p style="margin:16px 0 0;color:rgba(255,255,255,.57);font-size:11px">常见设计令 Hq × Dhead = Dmodel，因此 Dhead = hidden_size / Hq；但这是架构选择，不是数学定律。更一般地，Dhead = Q projection 总宽度 / Hq。</p>
-          </article>
-          <article class="diagram">
-            <h3>GQA：多个 Q heads 共享 KV</h3>
-            <div class="head-map" aria-label="八个 Query heads"><span class="q-head">Q1</span><span class="q-head">Q2</span><span class="q-head">Q3</span><span class="q-head">Q4</span><span class="q-head">Q5</span><span class="q-head">Q6</span><span class="q-head">Q7</span><span class="q-head">Q8</span></div>
-            <div class="kv-map"><span class="kv-head">KV 1 · 服务 Q1–Q4</span><span class="kv-head">KV 2 · 服务 Q5–Q8</span></div>
-            <p style="margin:16px 0 0;color:rgba(255,255,255,.57);font-size:11px">MHA：Hq = Hkv。GQA：1 &lt; Hkv &lt; Hq。MQA：Hkv = 1。Llama 3.1 70B 使用 Hq=64、Hkv=8，因此每 8 个 Query heads 共享一组 K/V。</p>
-          </article>
-        </div>
-        <div class="equation">Attention(Q,K,V) = softmax(QKᵀ / √Dhead) V</div>
-        <div class="attention-grid">
-          <article class="note-card"><h3>为什么是 O(N²)</h3><p>每个 Query token 都要与 N 个 Key token 交互，共有 N×N 个 token pairs。QKᵀ 约需 2N²D FLOPs，后面的 Attention·V 也约需 2N²D FLOPs。Causal mask 只减少常数，不改变 O(N²)。</p></article>
-          <article class="note-card"><h3>GPU 会改变复杂度吗</h3><p>CPU/GPU 上 GEMM 的算术工作量都约为 2MNK FLOPs。GPU 通过更多并行单元和 Tensor Core 降低实际时间，但没有消除工作量。实际性能还取决于利用率、HBM IO、shape 对齐和 kernel launch。</p></article>
-          <article class="note-card"><h3>FlashAttention</h3><p>通过 tiling 避免把完整 N×N score 矩阵写回 HBM，大幅减少 IO 和中间内存；dense attention 的算术复杂度仍近似 O(N²D)。</p></article>
-          <article class="note-card"><h3>Prefill vs Decode</h3><p>完整 prefill 的 dense attention 是 O(N²)。KV Cache 下，单个新 token 只产生一个 Query，与 N 个历史 Keys 交互，所以单个 decode step 是 O(N)；连续生成 N 个 token 的总和仍是 O(N²)。</p></article>
-        </div>
-      </div>
-    </section>
+max_model_len:
+kv_token_capacity:
+max_num_batched_tokens:
+max_running_requests:
 
-    <section class="section dark" id="parallelism">
-      <div class="wrap">
-        <div class="section-head">
-          <div><p class="kicker">Parallelism</p><h2>谁切容量，谁引入通信</h2></div>
-          <p class="section-intro">并行度不是简单相乘。Attention、dense MLP、MoE experts 可能使用不同网格；回答时要说清每一块内存由哪个维度切分。</p>
-        </div>
-        <div class="parallel-grid">
-          <article class="parallel-card"><strong>TP</strong><b>Tensor Parallel</b><p>一层内部切矩阵或 heads。降低每卡权重，但每层需要频繁 collective。</p></article>
-          <article class="parallel-card"><strong>PP</strong><b>Pipeline Parallel</b><p>按层切 stage。适合极大模型和跨节点，但有 stage 传输与 bubble。</p></article>
-          <article class="parallel-card"><strong>DP</strong><b>Data Parallel</b><p>复制模型副本，处理不同请求。扩总吞吐，但不解决单副本放不下。</p></article>
-          <article class="parallel-card"><strong>EP</strong><b>Expert Parallel</b><p>把 MoE experts 分到不同 GPU。分摊专家权重，引入 token all-to-all。</p></article>
-          <article class="parallel-card"><strong>CP</strong><b>Context Parallel</b><p>切序列/上下文维度。可分摊超长上下文状态，但 attention 通信复杂。</p></article>
-        </div>
-        <div class="equation">拓扑原则：TP / EP → 最快的 NVLink/NVSwitch/MNNVL 域；跨节点优先 DP 或较粗粒度 PP</div>
-      </div>
-    </section>
+input_length_p50_p95_max:
+output_length_p50_p95_max:
+concurrency:
+arrival_rate:
 
-    <section class="section" id="cases">
-      <div class="wrap">
-        <div class="section-head">
-          <div><p class="kicker">Worked examples</p><h2>8B、70B 和 MoE，现场怎么算</h2></div>
-          <p class="section-intro">公式先给容量下界，再用并发、上下文、workspace 和互联把它变成部署方案。</p>
-        </div>
-        <div class="cases">
-          <article class="case"><span class="case-label">Llama 3.1 8B</span><h3>24 GiB 卡上的边界</h3><div class="number">128 KiB</div><p>BF16 KV / token：2×32×8×128×2。</p><ul><li>8K 单序列 KV ≈ 1 GiB</li><li>32K ≈ 4 GiB</li><li>128K ≈ 16 GiB</li><li>BF16 权重约 14.9 GiB</li></ul></article>
-          <article class="case"><span class="case-label">Llama 3.1 70B</span><h3>2×80G 为什么仍 OOM</h3><div class="number">320 KiB</div><p>BF16 KV / token：2×80×8×128×2。</p><ul><li>BF16 权重约 130.4 GiB</li><li>单序列 32K KV ≈ 10 GiB</li><li>16 路 × 8K KV 总计 ≈ 40 GiB</li><li>TP=2 时约 85.2 GiB/卡，未计 workspace</li></ul></article>
-          <article class="case"><span class="case-label">MoE</span><h3>总参数 ≠ 激活参数</h3><div class="number">671B / 37B</div><p>DeepSeek-V3 类模型：总参数决定主要常驻权重，激活参数更接近每 token 计算量。</p><ul><li>EP 分摊 experts 权重</li><li>token dispatch/combine 形成 all-to-all</li><li>负载偏斜产生 straggler</li></ul></article>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>70B 配置</th><th>每卡权重</th><th>KV 示例</th><th>容量判断</th></tr></thead>
-            <tbody>
-              <tr><td>BF16 · TP=2 · 2×80G</td><td>≈65.2 GiB</td><td>1×32K：≈5 GiB/卡</td><td>低并发可能可行，但运行空间紧</td></tr>
-              <tr><td>BF16 · TP=2 · 2×80G</td><td>≈65.2 GiB</td><td>16×8K：≈20 GiB/卡</td><td>未计 workspace 已超过 80 GiB</td></tr>
-              <tr><td>BF16 · TP=4 · 4×80G</td><td>≈32.6 GiB</td><td>16×8K：≈10 GiB/卡</td><td>容量宽裕，更适合生产压测</td></tr>
-              <tr><td>INT4 · 1×80G</td><td>理论≈32.6 GiB+</td><td>1×128K：≈40 GiB</td><td>非常依赖量化开销与 prefill 峰值</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section class="section alt" id="engines">
-      <div class="wrap">
-        <div class="section-head">
-          <div><p class="kicker">Inference engines</p><h2>三个引擎，三个“0.9”口径</h2></div>
-          <p class="section-intro">默认值会随版本改变，长期应该记住参数控制哪一块账本。部署时以当前安装版本的帮助和对应文档为准。</p>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>引擎</th><th>关键参数</th><th>控制对象</th><th>使用提醒</th></tr></thead>
-            <tbody>
-              <tr><td>vLLM</td><td><code>--gpu-memory-utilization</code></td><td>当前 executor 的显存预算</td><td>默认值随版本变化</td></tr>
-              <tr><td>vLLM</td><td><code>--kv-cache-memory-bytes</code></td><td>每 GPU KV 的精确字节预算</td><td>设置后覆盖自动推导</td></tr>
-              <tr><td>vLLM</td><td><code>--max-num-batched-tokens</code></td><td>单轮最多处理 token 数</td><td>影响 prefill 峰值和调度</td></tr>
-              <tr><td>vLLM</td><td><code>--cpu-offload-gb</code></td><td>权重 CPU offload</td><td>每次 forward 搬权重，链路慢时代价大</td></tr>
-              <tr><td>SGLang</td><td><code>--mem-fraction-static</code></td><td>权重 + KV 静态池</td><td>降低可缓解 OOM，但会减少 token pool</td></tr>
-              <tr><td>SGLang</td><td><code>--max-total-tokens</code></td><td>KV token 池上限</td><td>比 max context 更接近总并发容量</td></tr>
-              <tr><td>SGLang</td><td><code>--chunked-prefill-size</code></td><td>Prefill chunk 大小</td><td>长 prompt OOM 时优先降低</td></tr>
-              <tr><td>TensorRT-LLM</td><td><code>free_gpu_memory_fraction</code></td><td>权重/buffer 后剩余显存中给 KV 的比例</td><td>不是总显存的 90%</td></tr>
-              <tr><td>TensorRT-LLM</td><td><code>max_tokens</code></td><td>KV Cache 最大 token 数</td><td>与 fraction 同设时取更小容量</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="offload">
-      <div class="wrap">
-        <div class="section-head">
-          <div><p class="kicker">KV offload</p><h2>用容量换延迟，关键是别搬错数据</h2></div>
-          <p class="section-intro">热 KV 留在 HBM，冷 page 进入 CPU、NVMe 或远端层；真正的收益来自复用、预取和 KV-aware routing，而不是“把显存扩成无限大”。</p>
-        </div>
-        <div class="flow-levels">
-          <div class="level"><strong>GPU HBM</strong><span>最低延迟 · Paged KV</span></div>
-          <div class="level"><strong>CPU DRAM</strong><span>PCIe / NVLink-C2C</span></div>
-          <div class="level"><strong>Local NVMe</strong><span>更大容量 · 更高延迟</span></div>
-          <div class="level"><strong>Remote KV</strong><span>共享缓存 · 网络与路由</span></div>
-        </div>
-        <div class="attention-grid" style="margin-top:18px">
-          <article class="note-card"><h3>权重 offload</h3><p>每层、每次 forward 都可能把权重搬回 GPU，decode 很容易被 PCIe 带宽限制。</p></article>
-          <article class="note-card"><h3>KV offload</h3><p>只换出暂时不活跃的 pages，并在请求恢复前预取，代价更容易隐藏；若每步都缺页仍会很慢。</p></article>
-        </div>
-        <div class="equation">最低搬运时间 ≥ bytes_to_move ÷ effective_link_bandwidth</div>
-        <div class="prose"><p>例如搬 10 GiB KV，经 32 GB/s 的有效 PCIe 路径，纯传输下界约 0.31 秒；经数百 GB/s 的 C2C 路径，才可能降到几十毫秒。相关组件包括 LMCache、SGLang HiCache、Mooncake、NIXL、NVIDIA Dynamo 和 TensorRT-LLM KV Cache Manager。</p></div>
-      </div>
-    </section>
-
-    <section class="section alt" id="interconnect">
-      <div class="wrap">
-        <div class="section-head">
-          <div><p class="kicker">Interconnect</p><h2>PCIe、IB、NVLink、C2C、MNNVL</h2></div>
-          <p class="section-intro">Scale-up 解决一个模型副本内部怎样高速协同；scale-out 解决更多节点和副本怎样扩展。比较带宽数字前，先统一单向、双向和 aggregate 口径。</p>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>互联</th><th>连接对象</th><th>主要角色</th><th>对并行的意义</th></tr></thead>
-            <tbody>
-              <tr><td>PCIe</td><td>GPU↔CPU / fallback GPU P2P</td><td>通用 I/O</td><td>权重 offload 和大 TP/EP 容易受限</td></tr>
-              <tr><td>NVLink</td><td>GPU↔GPU</td><td>高带宽低延迟 P2P</td><td>适合单机 TP/EP；H100 官方称最高 900 GB/s</td></tr>
-              <tr><td>NVSwitch</td><td>多 GPU 交换网络</td><td>高双截面 NVLink 域</td><td>HGX/DGX 内适合更大 TP</td></tr>
-              <tr><td>InfiniBand</td><td>跨服务器 NIC / GPU RDMA</td><td>集群 scale-out</td><td>NDR 400 Gb/s 单端口线速约 50 GB/s</td></tr>
-              <tr><td>NVLink-C2C</td><td>Grace CPU↔Hopper/Blackwell GPU</td><td>一致性 CPU-GPU 互联</td><td>有利于 CPU memory 扩展和 offload</td></tr>
-              <tr><td>MNNVL</td><td>跨 OS 节点的 rack-scale NVLink</td><td>Blackwell NVL72 scale-up fabric</td><td>72 GPU NVLink 域；依赖 IMEX/Fabric Manager/NCCL</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="validation">
-      <div class="wrap">
-        <div class="section-head">
-          <div><p class="kicker">Production validation</p><h2>理论估算之后，怎么证明它真的能跑</h2></div>
-          <p class="section-intro">启动成功不等于压力下不会 OOM；平均吞吐很高也不代表 P99 能满足在线服务。</p>
-        </div>
-        <div class="checklist">
-          <div class="check">固定模型 revision、量化 checkpoint、CUDA/driver、引擎版本和 attention backend。</div>
-          <div class="check">读取 layers、hidden size、Q/KV heads、head dim、attention 类型和 MoE top-k。</div>
-          <div class="check">按实际 checkpoint 和加载 profile 校准权重，而不是只看“7B/70B”标签。</div>
-          <div class="check">从日志获得 input/output length、总活跃 token、并发和 prefix 重复率分布。</div>
-          <div class="check">分别压测 prefill-heavy、decode-heavy、长上下文、突发并发和混合 workload。</div>
-          <div class="check">记录峰值显存、KV capacity、TTFT、ITL、吞吐、排队、preemption 和 cache hit。</div>
-          <div class="check">核对 NCCL 是否走预期 NVLink/IB 路径，没有意外 fallback。</div>
-          <div class="check">做 30–60 分钟稳态压测，观察碎片、热身、graph capture 和异常请求。</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section alt" id="video">
-      <div class="wrap">
-        <div class="section-head">
-          <div><p class="kicker">Video outline</p><h2>把它讲成一期 20 分钟视频</h2></div>
-          <p class="section-intro">建议标题：《70B 模型到底要几张 GPU？一套公式算清显存、KV Cache 与并行策略》</p>
-        </div>
-        <div class="timeline">
-          <div class="timeline-row"><time>0:00–1:00</time><b>反直觉开场</b><span>140GB 权重，为什么 2×80G 仍然 OOM？</span></div>
-          <div class="timeline-row"><time>1:00–3:00</time><b>先问五个问题</b><span>模型、精度、长度、并发、SLA。</span></div>
-          <div class="timeline-row"><time>3:00–7:00</time><b>四块显存账本</b><span>权重、KV、workspace、运行时预留。</span></div>
-          <div class="timeline-row"><time>7:00–11:00</time><b>KV 手算</b><span>8B 与 70B；Hq、Hkv 和 Dhead。</span></div>
-          <div class="timeline-row"><time>11:00–14:00</time><b>并行策略</b><span>TP/PP/DP/EP 各自切什么、通信什么。</span></div>
-          <div class="timeline-row"><time>14:00–17:00</time><b>引擎参数</b><span>三套引擎的 utilization 和 token pool。</span></div>
-          <div class="timeline-row"><time>17:00–20:00</time><b>Offload 与互联</b><span>HBM→DRAM→NVMe；PCIe、IB、NVLink、C2C。</span></div>
-          <div class="timeline-row"><time>结尾</time><b>完整回答</b><span>最小可跑是一道容量题；生产建议是一道系统题。</span></div>
-        </div>
-        <div class="equation">跑得下，是容量题；跑得快，是 roofline、调度和通信题；跑得稳，才是生产系统题。</div>
-      </div>
-    </section>
-
-    <section class="section" id="sources">
-      <div class="wrap">
-        <div class="section-head">
-          <div><p class="kicker">Primary sources</p><h2>继续学习</h2></div>
-          <p class="section-intro">引擎参数变化很快，具体默认值应以实际安装版本和对应版本文档为准。</p>
-        </div>
-        <ul class="sources">
-          <li><a href="https://docs.vllm.ai/en/latest/cli/serve/">vLLM Serve CLI</a></li>
-          <li><a href="https://docs.vllm.ai/en/stable/api/vllm/config/index.html">vLLM Config API</a></li>
-          <li><a href="https://sgl-project.github.io/advanced_features/server_arguments.html">SGLang Server Arguments</a></li>
-          <li><a href="https://github.com/sgl-project/sglang/blob/main/docs_new/docs/advanced_features/hicache.mdx">SGLang HiCache</a></li>
-          <li><a href="https://nvidia.github.io/TensorRT-LLM/reference/memory.html">TensorRT-LLM Memory Usage</a></li>
-          <li><a href="https://nvidia.github.io/TensorRT-LLM/1.2.0/features/kvcache.html">TensorRT-LLM KV Cache System</a></li>
-          <li><a href="https://arxiv.org/abs/2205.14135">FlashAttention paper</a></li>
-          <li><a href="https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/blob/main/config.json">Llama 3.1 8B config</a></li>
-          <li><a href="https://huggingface.co/meta-llama/Llama-3.1-70B-Instruct/blob/main/config.json">Llama 3.1 70B config</a></li>
-          <li><a href="https://github.com/deepseek-ai/DeepSeek-V3">DeepSeek-V3 technical report</a></li>
-          <li><a href="https://www.nvidia.com/en-us/data-center/h100/">NVIDIA H100</a></li>
-          <li><a href="https://docs.nvidia.com/multi-node-nvlink-systems/mnnvl-user-guide/overview.html">NVIDIA MNNVL User Guide</a></li>
-          <li><a href="https://www.nvidia.com/en-us/data-center/gb200-nvl72/">NVIDIA GB200 NVL72</a></li>
-        </ul>
+peak_memory_per_gpu:
+ttft_p50_p99:
+itl_p50_p99:
+input_tokens_per_second:
+output_tokens_per_second:
+prefix_cache_hit_rate:
+preemption_or_recompute:
+</code></pre>
+<hr>
+<h2>11. 常见追问</h2>
+<h3>为什么 4-bit 模型不一定快 4 倍？</h3>
+<p>因为性能瓶颈可能是：</p>
+<ul>
+<li>反量化和 kernel 效率。</li>
+<li>激活或 KV Cache。</li>
+<li>小 batch 下的 kernel launch。</li>
+<li>TP/EP 通信。</li>
+<li>GPU 对某种 INT4 格式没有高效原生支持。</li>
+</ul>
+<p>量化首先降低的是权重容量和权重带宽，不保证端到端线性加速。</p>
+<h3>为什么 max context 不能直接代表并发？</h3>
+<p>KV 消耗由所有活跃 token 的总数决定。一个 128K 请求和 16 个 8K 请求的 KV 总量可能相似，但 prefill、调度、延迟和 page 碎片行为不同。</p>
+<h3>FlashAttention 是否把 attention 变成线性复杂度？</h3>
+<p>它把中间内存和 HBM IO 显著优化，dense attention 的计算量仍近似 $O(S^2)$。</p>
+<h3>DP 能否解决模型放不下？</h3>
+<p>普通 DP 复制模型，不能降低单副本权重。模型放不下要使用 TP、PP、EP、量化或 offload。</p>
+<h3>为什么 MoE 对网络要求高？</h3>
+<p>EP 后 token 需要 dispatch 到 expert 所在 GPU，再把结果 combine；这是 all-to-all 通信，而且路由不均会造成部分 GPU 成为 straggler。</p>
+<h3>为什么只知道 GPU 型号还不够？</h3>
+<p>同一型号可能有：</p>
+<ul>
+<li>不同显存容量。</li>
+<li>PCIe 与 SXM 版本。</li>
+<li>是否有 NVLink/NVSwitch。</li>
+<li>不同 CPU/NUMA/PCIe 拓扑。</li>
+<li>不同跨节点 IB/RoCE 配置。</li>
+</ul>
+<hr>
+<h2>12. 一页速查</h2>
+<table>
+<thead>
+<tr>
+<th>要问</th>
+<th>要算</th>
+<th>要验证</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Dense 还是 MoE</td>
+<td>权重：$P\times bits/8$ + 量化开销</td>
+<td>加载后每卡权重</td>
+</tr>
+<tr>
+<td>推理还是训练</td>
+<td>KV：$2LH_{kv}D\times bytes\times tokens$</td>
+<td>KV token capacity</td>
+</tr>
+<tr>
+<td>权重/KV/激活精度</td>
+<td>workspace：按单轮 token 峰值</td>
+<td>prefill 峰值显存</td>
+</tr>
+<tr>
+<td>最大/平均上下文与并发</td>
+<td>并行后每卡分片与复制</td>
+<td>TTFT、ITL、throughput</td>
+</tr>
+<tr>
+<td>请求分布和 SLA</td>
+<td>offload：bytes/bandwidth</td>
+<td>cache hit、preemption</td>
+</tr>
+<tr>
+<td>GPU 容量和拓扑</td>
+<td>通信量和有效链路带宽</td>
+<td>NCCL 是否走预期链路</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>13. 可直接背诵的完整回答</h2>
+<blockquote>
+<p>我会先澄清这里的“跑”指在线推理、离线推理还是训练。若是在线推理，GPU 数没有只由参数量决定的唯一答案，我会先定义模型结构、权重和 KV 精度、最大与平均上下文、并发、目标吞吐和延迟。</p>
+<p>容量上我分四块记账。第一是权重，约等于参数量乘以每参数字节数，但量化还要加 scale、zero-point 和未量化层。第二是 KV Cache，普通 decoder 模型每 token 约为 2×层数×KV 头数×head dimension×KV dtype 字节数，再乘所有活跃 token。第三是 prefill 激活、attention/GEMM workspace、CUDA Graph 和通信 buffer。第四是框架、分配器碎片，以及 draft model、LoRA 或视觉编码器等附加项。</p>
+<p>然后看并行。Dense 模型通常用 TP/PP 切权重，DP 是复制副本、主要扩吞吐；MoE 用 EP 切专家，但会引入 all-to-all。TP/EP 应尽量放在 NVLink/NVSwitch 或 MNNVL 域内，跨节点 IB 更适合 DP 或较粗粒度 PP，具体仍需 benchmark。</p>
+<p>最后我会给两个数字：理论最小可跑 GPU 数，以及在给定长度分布、并发和 P99 SLA 下的生产建议 GPU 数。比如 BF16 70B 权重约 130 GiB，2×80G 只是权重下界附近；当 16 路请求平均各有 8K 活跃 token 时，BF16 KV 总计约 40 GiB，再加 workspace，TP=2 就放不下，而 TP=4 会更合理。</p>
+</blockquote>
+<hr>
+<h2>14. 资料来源</h2>
+<h3>推理引擎</h3>
+<ul>
+<li><a href="https://docs.vllm.ai/en/latest/cli/serve/">vLLM Serve CLI</a></li>
+<li><a href="https://docs.vllm.ai/en/stable/api/vllm/config/index.html">vLLM Config API：KV memory 与 offloading</a></li>
+<li><a href="https://sgl-project.github.io/advanced_features/server_arguments.html">SGLang Server Arguments</a></li>
+<li><a href="https://github.com/sgl-project/sglang/blob/main/docs_new/docs/advanced_features/hicache.mdx">SGLang HiCache</a></li>
+<li><a href="https://nvidia.github.io/TensorRT-LLM/reference/memory.html">TensorRT-LLM Memory Usage</a></li>
+<li><a href="https://nvidia.github.io/TensorRT-LLM/1.2.0/features/kvcache.html">TensorRT-LLM KV Cache System</a></li>
+</ul>
+<h3>模型与算法</h3>
+<ul>
+<li><a href="https://arxiv.org/abs/2205.14135">FlashAttention</a></li>
+<li><a href="https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/blob/main/config.json">Meta Llama 3.1 8B config</a></li>
+<li><a href="https://huggingface.co/meta-llama/Llama-3.1-70B-Instruct/blob/main/config.json">Meta Llama 3.1 70B config</a></li>
+<li><a href="https://github.com/deepseek-ai/DeepSeek-V3">DeepSeek-V3 官方仓库与技术报告</a></li>
+</ul>
+<h3>NVIDIA 硬件与互联</h3>
+<ul>
+<li><a href="https://www.nvidia.com/en-us/data-center/h100/">NVIDIA H100</a></li>
+<li><a href="https://docs.nvidia.com/multi-node-nvlink-systems/index.html">NVIDIA Multi-Node NVLink Systems</a></li>
+<li><a href="https://docs.nvidia.com/multi-node-nvlink-systems/mnnvl-user-guide/overview.html">NVIDIA MNNVL User Guide</a></li>
+<li><a href="https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/env.html">NCCL MNNVL 配置</a></li>
+<li><a href="https://www.nvidia.com/en-us/data-center/gb200-nvl72/">NVIDIA GB200 NVL72</a></li>
+</ul>
+<blockquote>
+<p><strong>说明</strong>
+引擎参数和默认值更新很快。本文的长期价值在于显存账本、KV 公式、并行通信和验证方法；具体参数默认值应在实际部署时重新确认。</p>
+</blockquote>
+<section class="concept-supplement" aria-labelledby="concept-supplement-title">
+  <p class="kicker">Concept supplement</p>
+  <h2 id="concept-supplement-title">对几个易混概念的进一步解释</h2>
+  <h3>MHA 是切片还是复制 hidden state？</h3>
+  <p>都不是。完整 hidden state 分别通过可学习的 WQ、WK、WV 投影；投影结果再 reshape 成多个 heads。每个 head 可以看见完整输入，只是学习了不同的投影子空间。实现中常把多个 head 的小矩阵合并成一个大矩阵，一次 GEMM 后再 reshape。</p>
+  <div class="equation">X [N,Dmodel] × WQ [Dmodel,Hq·Dhead] → Q [N,Hq,Dhead]</div>
+  <h3>为什么常见 Dhead = hidden_size / Hq？</h3>
+  <p>更一般的公式是 Dhead = Q projection 总输出宽度 / Hq。只有架构选择 Hq·Dhead = Dmodel 时，才简化为 hidden_size/Hq。Dhead 可以自定义；此时 WQ 的输出宽度与 Wo 的输入宽度会相应改变。Q 和 K 要做点积，所以通常要求 Dq=Dk；Dv 理论上可以不同。</p>
+  <h3>GEMM 的复杂度在 CPU 和 GPU 上是否不同？</h3>
+  <p>矩阵 [M,K]×[K,N] 的算术工作量在任何硬件上都约为 2MNK FLOPs。GPU 改变的是并行执行时间、Tensor Core 利用率和数据搬运效率，而不是工作量本身。固定硬件上，当矩阵足够大并已饱和，序列长度翻倍仍会让 dense attention 的主要 FLOPs 接近四倍；小 shape 下则可能因为利用率变化而不严格呈现四倍 wall time。</p>
+  <div class="equation">T ≥ max(FLOPs / effective compute throughput, bytes moved / effective memory bandwidth)</div>
+</section>
+        </article>
       </div>
     </section>
   </main>
