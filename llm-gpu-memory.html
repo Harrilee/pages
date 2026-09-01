@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="系统学习大模型推理需要多少显存和 GPU：权重、KV Cache、Attention、量化、TP/PP/DP/EP、推理引擎、Offload 与互联。">
+  <meta name="theme-color" content="#07131d">
+  <meta property="og:title" content="跑一个大模型，需要多少显存、多少 GPU？">
+  <meta property="og:description" content="一套从公式、手算到生产压测的完整估算方法。">
+  <meta property="og:type" content="article">
+  <title>跑一个大模型，需要多少显存、多少 GPU？</title>
+  <style>
+    :root {
+      --ink: #102331;
+      --muted: #5b6b76;
+      --paper: #f3f6f7;
+      --card: #fff;
+      --night: #07131d;
+      --night-2: #0d2230;
+      --cyan: #64d8d0;
+      --cyan-dark: #0e7774;
+      --blue: #2c77c7;
+      --amber: #e7a33a;
+      --line: #d8e1e5;
+      --soft: #e9f4f4;
+      --danger: #a94747;
+      --shadow: 0 24px 70px rgba(10, 31, 44, .11);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; line-height: 1.72; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; }
+    button, input, select { font: inherit; }
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; }
+    .topbar { position: sticky; z-index: 30; top: 0; display: flex; justify-content: space-between; align-items: center; min-height: 66px; padding: 9px max(20px, calc((100vw - 1180px) / 2)); color: #fff; background: rgba(7, 19, 29, .92); border-bottom: 1px solid rgba(255,255,255,.09); backdrop-filter: blur(16px); }
+    .brand { color: #fff; font-weight: 850; text-decoration: none; letter-spacing: -.02em; }
+    .topnav { display: flex; gap: 5px; }
+    .topnav a { padding: 7px 10px; color: rgba(255,255,255,.66); border-radius: 999px; font-size: 12px; font-weight: 750; text-decoration: none; }
+    .topnav a:hover { color: #fff; background: rgba(255,255,255,.09); }
+    .hero { position: relative; overflow: hidden; color: #fff; background: radial-gradient(circle at 82% 20%, rgba(54, 198, 194, .20), transparent 28%), radial-gradient(circle at 13% 90%, rgba(44,119,199,.24), transparent 34%), linear-gradient(145deg, var(--night), var(--night-2)); }
+    .hero::before { content: ""; position: absolute; inset: 0; opacity: .14; background-image: linear-gradient(rgba(255,255,255,.16) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.16) 1px, transparent 1px); background-size: 44px 44px; mask-image: linear-gradient(to bottom, #000, transparent 82%); }
+    .hero-inner { position: relative; width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 110px 0 104px; }
+    .eyebrow { display: flex; align-items: center; gap: 10px; margin: 0 0 20px; color: var(--cyan); font-size: 11px; font-weight: 900; letter-spacing: .17em; text-transform: uppercase; }
+    .eyebrow::before { content: ""; width: 44px; height: 2px; background: currentColor; }
+    h1 { max-width: 980px; margin: 0; font-size: clamp(45px, 8vw, 92px); line-height: .98; letter-spacing: -.065em; text-wrap: balance; }
+    .lede { max-width: 750px; margin: 28px 0 0; color: rgba(255,255,255,.7); font-size: clamp(16px, 2vw, 20px); }
+    .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 30px; }
+    .hero-tags span { padding: 7px 11px; color: #bff4ef; background: rgba(100,216,208,.1); border: 1px solid rgba(100,216,208,.28); border-radius: 999px; font-size: 11px; font-weight: 800; }
+    .formula-strip { position: relative; z-index: 2; width: min(1180px, calc(100% - 40px)); margin: -38px auto 0; padding: 25px 28px; color: #fff; background: #102b39; border: 1px solid rgba(255,255,255,.12); border-radius: 22px; box-shadow: var(--shadow); }
+    .formula-strip small { display: block; color: var(--cyan); font-size: 10px; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
+    .formula-strip code { display: block; margin-top: 7px; overflow-x: auto; color: #fff; font-family: "SFMono-Regular", Consolas, monospace; font-size: clamp(12px, 2vw, 17px); white-space: nowrap; }
+    .wrap { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    .section { padding: 94px 0; }
+    .section-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .65fr); gap: 46px; align-items: end; margin-bottom: 36px; }
+    .kicker { margin: 0 0 8px; color: var(--cyan-dark); font-size: 11px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+    h2 { margin: 0; font-size: clamp(34px, 5vw, 58px); line-height: 1.06; letter-spacing: -.05em; text-wrap: balance; }
+    .section-intro { margin: 0; color: var(--muted); font-size: 14px; }
+    .calculator { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr); gap: 18px; }
+    .panel { padding: 28px; background: var(--card); border: 1px solid var(--line); border-radius: 24px; box-shadow: 0 14px 42px rgba(10,31,44,.07); }
+    .preset-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+    .preset { padding: 8px 12px; color: var(--cyan-dark); background: var(--soft); border: 1px solid #c6e2e1; border-radius: 999px; font-size: 12px; font-weight: 850; cursor: pointer; }
+    .preset:hover { background: #d9eeee; }
+    .fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    label { display: grid; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 800; }
+    input, select { width: 100%; min-height: 43px; padding: 8px 10px; color: var(--ink); background: #f8fafb; border: 1px solid #cedae0; border-radius: 10px; }
+    .result-panel { color: #fff; background: linear-gradient(155deg, #102b39, #0b1d28); border-color: #102b39; }
+    .result-panel h3 { margin: 0; color: var(--cyan); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; }
+    .big-result { margin: 15px 0 3px; font-size: clamp(48px, 8vw, 78px); font-weight: 900; line-height: 1; letter-spacing: -.06em; }
+    .big-result span { color: var(--cyan); }
+    .result-note { margin: 0 0 22px; color: rgba(255,255,255,.62); font-size: 12px; }
+    .result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
+    .metric { padding: 13px; background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.1); border-radius: 13px; }
+    .metric strong { display: block; font-size: 18px; }
+    .metric span { color: rgba(255,255,255,.55); font-size: 10px; }
+    .warning { margin: 18px 0 0; padding: 13px 14px; color: #ffe0aa; background: rgba(231,163,58,.1); border: 1px solid rgba(231,163,58,.25); border-radius: 12px; font-size: 11px; }
+    .answer { display: grid; grid-template-columns: .68fr 1.32fr; gap: 18px; }
+    .answer-card { padding: 26px; color: #fff; background: var(--night); border-radius: 22px; }
+    .answer-card strong { display: block; color: var(--cyan); font-size: 13px; }
+    .answer-card p { margin: 12px 0 0; color: rgba(255,255,255,.7); font-size: 14px; }
+    .steps { display: grid; gap: 10px; counter-reset: step; }
+    .step { display: grid; grid-template-columns: 38px 1fr; gap: 12px; align-items: start; padding: 17px 18px; background: #fff; border: 1px solid var(--line); border-radius: 15px; }
+    .step::before { counter-increment: step; content: counter(step); display: grid; place-items: center; width: 32px; height: 32px; color: #fff; background: var(--blue); border-radius: 50%; font-size: 12px; font-weight: 900; }
+    .step b { display: block; font-size: 14px; }
+    .step span { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; }
+    .section.alt { background: #fff; }
+    .section.dark { color: #fff; background: var(--night); }
+    .dark .kicker { color: var(--cyan); }
+    .dark .section-intro { color: rgba(255,255,255,.6); }
+    .ledger { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .ledger-card { position: relative; overflow: hidden; min-height: 220px; padding: 23px; background: #fff; border: 1px solid var(--line); border-radius: 20px; }
+    .ledger-card::after { content: attr(data-number); position: absolute; right: -5px; bottom: -30px; color: rgba(16,35,49,.045); font-size: 150px; font-weight: 950; line-height: 1; }
+    .ledger-card b { display: block; color: var(--blue); font-size: 18px; }
+    .ledger-card p { position: relative; z-index: 1; margin: 10px 0 0; color: var(--muted); font-size: 12px; }
+    .equation { margin: 22px 0; padding: 19px 21px; overflow-x: auto; color: #d5fffb; background: #102b39; border-left: 4px solid var(--cyan); border-radius: 12px; font-family: "SFMono-Regular", Consolas, monospace; font-size: clamp(12px, 2vw, 16px); white-space: nowrap; }
+    .prose { max-width: 850px; }
+    .prose p { color: var(--muted); }
+    .prose strong { color: var(--ink); }
+    .table-wrap { overflow-x: auto; margin-top: 22px; border: 1px solid var(--line); border-radius: 16px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; font-size: 12px; }
+    th, td { padding: 13px 15px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: #28566f; background: #eaf1f4; font-size: 11px; letter-spacing: .02em; }
+    tr:last-child td { border-bottom: 0; }
+    td code { color: var(--cyan-dark); font-size: 11px; }
+    .attention-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .diagram { padding: 25px; color: #fff; background: #102b39; border-radius: 22px; }
+    .diagram h3 { margin: 0 0 18px; color: var(--cyan); font-size: 16px; }
+    .shape-flow { display: grid; gap: 10px; }
+    .shape-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; }
+    .shape { padding: 11px 12px; color: #fff; background: rgba(255,255,255,.065); border: 1px solid rgba(255,255,255,.12); border-radius: 11px; font-family: "SFMono-Regular", Consolas, monospace; font-size: 11px; text-align: center; }
+    .op { color: var(--amber); font-weight: 900; }
+    .head-map { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; margin-top: 18px; }
+    .q-head { padding: 9px 2px; color: #082027; background: var(--cyan); border-radius: 7px; font-size: 9px; font-weight: 900; text-align: center; }
+    .kv-map { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; margin-top: 5px; }
+    .kv-head { padding: 9px; color: #fff; background: var(--blue); border-radius: 7px; font-size: 9px; font-weight: 900; text-align: center; }
+    .note-card { padding: 22px; background: var(--soft); border: 1px solid #c8dfdf; border-radius: 18px; }
+    .note-card h3 { margin: 0; color: var(--cyan-dark); font-size: 16px; }
+    .note-card p, .note-card li { color: var(--muted); font-size: 12px; }
+    .note-card ul { margin: 12px 0 0; padding-left: 18px; }
+    .parallel-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+    .parallel-card { padding: 20px 16px; color: #fff; background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.11); border-radius: 17px; }
+    .parallel-card strong { display: block; color: var(--cyan); font-size: 24px; }
+    .parallel-card b { display: block; margin-top: 6px; font-size: 12px; }
+    .parallel-card p { margin: 8px 0 0; color: rgba(255,255,255,.58); font-size: 11px; }
+    .cases { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
+    .case { padding: 25px; background: #fff; border: 1px solid var(--line); border-radius: 22px; box-shadow: 0 10px 32px rgba(10,31,44,.055); }
+    .case-label { color: var(--cyan-dark); font-size: 10px; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
+    .case h3 { margin: 7px 0 15px; font-size: 24px; line-height: 1.1; }
+    .case .number { color: var(--blue); font-size: 34px; font-weight: 900; letter-spacing: -.04em; }
+    .case p { color: var(--muted); font-size: 12px; }
+    .case ul { margin: 14px 0 0; padding-left: 18px; color: var(--muted); font-size: 11px; }
+    .flow-levels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 24px; }
+    .level { position: relative; padding: 20px 15px; background: #fff; border: 1px solid var(--line); border-radius: 16px; text-align: center; }
+    .level:not(:last-child)::after { content: "→"; position: absolute; z-index: 2; top: 50%; right: -15px; display: grid; place-items: center; width: 22px; height: 22px; color: #fff; background: var(--blue); border-radius: 50%; transform: translateY(-50%); }
+    .level strong { display: block; color: var(--blue); }
+    .level span { display: block; margin-top: 5px; color: var(--muted); font-size: 10px; }
+    .checklist { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; counter-reset: checks; }
+    .check { position: relative; padding: 17px 18px 17px 52px; background: #fff; border: 1px solid var(--line); border-radius: 14px; font-size: 12px; }
+    .check::before { counter-increment: checks; content: counter(checks); position: absolute; left: 15px; top: 14px; display: grid; place-items: center; width: 26px; height: 26px; color: #fff; background: var(--cyan-dark); border-radius: 50%; font-size: 10px; font-weight: 900; }
+    .timeline { display: grid; gap: 0; margin-top: 20px; }
+    .timeline-row { display: grid; grid-template-columns: 110px 180px 1fr; gap: 16px; padding: 15px 0; border-bottom: 1px solid var(--line); font-size: 12px; }
+    .timeline-row:last-child { border-bottom: 0; }
+    .timeline-row time { color: var(--cyan-dark); font-weight: 900; }
+    .timeline-row b { color: var(--ink); }
+    .timeline-row span { color: var(--muted); }
+    .sources { columns: 2; column-gap: 28px; margin: 20px 0 0; padding: 0; list-style: none; }
+    .sources li { break-inside: avoid; margin: 0 0 8px; color: var(--muted); font-size: 11px; }
+    .sources a { color: var(--blue); }
+    footer { padding: 35px 20px 52px; color: rgba(255,255,255,.58); background: var(--night); font-size: 12px; text-align: center; }
+    @media (max-width: 780px) {
+      .topnav a:not(:last-child) { display: none; }
+      .hero-inner { padding: 78px 0 88px; }
+      .section { padding: 70px 0; }
+      .section-head, .calculator, .answer { grid-template-columns: 1fr; }
+      .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .ledger { grid-template-columns: repeat(2, 1fr); }
+      .attention-grid, .cases { grid-template-columns: 1fr; }
+      .parallel-grid { grid-template-columns: repeat(2, 1fr); }
+      .flow-levels { grid-template-columns: 1fr 1fr; }
+      .level:nth-child(2)::after { display: none; }
+      .timeline-row { grid-template-columns: 90px 1fr; }
+      .timeline-row span { grid-column: 2; }
+    }
+    @media (max-width: 500px) {
+      .wrap, .hero-inner, .formula-strip { width: min(100% - 24px, 1180px); }
+      .fields { grid-template-columns: 1fr; }
+      .panel { padding: 20px; border-radius: 18px; }
+      .ledger, .parallel-grid, .flow-levels, .checklist { grid-template-columns: 1fr; }
+      .level::after { display: none !important; }
+      .sources { columns: 1; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="topbar" aria-label="页面导航">
+    <a class="brand" href="index.html">Pages / Learn</a>
+    <div class="topnav">
+      <a href="#calculator">计算器</a>
+      <a href="#framework">回答框架</a>
+      <a href="#calculator">开始计算 →</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">LLM inference field guide</p>
+      <h1>跑一个大模型，<br>需要多少显存、多少 GPU？</h1>
+      <p class="lede">从“参数量 × 字节数”出发，把权重、KV Cache、Attention、并行策略、运行时预留和互联拓扑放进同一本账。</p>
+      <div class="hero-tags" aria-label="涵盖主题">
+        <span>Quantization</span><span>KV Cache</span><span>Attention</span><span>TP / PP / DP / EP</span><span>vLLM / SGLang / TRT-LLM</span>
+      </div>
+    </div>
+  </header>
+
+  <aside class="formula-strip" aria-label="显存总公式">
+    <small>Memory ledger</small>
+    <code>M_total ≈ M_weights + M_KV + M_workspace + M_runtime + M_optional</code>
+  </aside>
+
+  <main>
+    <section class="section" id="calculator">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">Interactive estimator</p><h2>先手算，再上机器验证</h2></div>
+          <p class="section-intro">计算器给出普通 decoder、GQA/MHA 类模型的容量下界。它假设权重均匀分片，并用实际 KV heads 限制 KV 的有效分片数。</p>
+        </div>
+        <div class="calculator">
+          <div class="panel">
+            <div class="preset-row">
+              <button class="preset" type="button" data-preset="8b">Llama 3.1 8B</button>
+              <button class="preset" type="button" data-preset="70b">Llama 3.1 70B</button>
+            </div>
+            <div class="fields">
+              <label>参数量（B）<input id="params" type="number" min="0.1" step="0.1" value="70"></label>
+              <label>权重位数<select id="weightBits"><option value="16">BF16 / FP16</option><option value="8">FP8 / INT8</option><option value="4">INT4</option></select></label>
+              <label>层数 L<input id="layers" type="number" min="1" value="80"></label>
+              <label>Query heads<input id="qHeads" type="number" min="1" value="64"></label>
+              <label>KV heads<input id="kvHeads" type="number" min="1" value="8"></label>
+              <label>Head dim<input id="headDim" type="number" min="1" value="128"></label>
+              <label>KV 字节/元素<select id="kvBytes"><option value="2">BF16 / FP16 · 2B</option><option value="1">FP8 · 1B</option></select></label>
+              <label>总活跃 tokens<input id="tokens" type="number" min="1" step="1024" value="131072"></label>
+              <label>单卡显存（GiB）<input id="gpuMemory" type="number" min="1" value="80"></label>
+              <label>每卡额外预留（GiB）<input id="overhead" type="number" min="0" step="0.5" value="8"></label>
+              <label>目标利用率<input id="utilization" type="number" min="0.1" max="1" step="0.01" value="0.90"></label>
+            </div>
+          </div>
+          <aside class="panel result-panel" aria-live="polite">
+            <h3>容量估算</h3>
+            <div class="big-result"><span id="gpuCount">4</span> GPUs</div>
+            <p class="result-note" id="resultNote">满足简化容量约束的最小 TP 卡数</p>
+            <div class="result-grid">
+              <div class="metric"><strong id="weightTotal">130.4 GiB</strong><span>权重理论总量</span></div>
+              <div class="metric"><strong id="kvTotal">40.0 GiB</strong><span>KV 理论总量</span></div>
+              <div class="metric"><strong id="perToken">320 KiB</strong><span>每 token KV</span></div>
+              <div class="metric"><strong id="perGpu">50.6 GiB</strong><span>估算每卡占用</span></div>
+            </div>
+            <p class="warning">这是容量下界，不代表能达到吞吐或延迟目标。量化元数据、CUDA Graph、通信 buffer、实际 KV 分片和峰值 workspace 仍需引擎 profile。</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="framework">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">Interview answer</p><h2>面试时，用六步回答</h2></div>
+          <p class="section-intro">先给方法，再给数字；同时区分最小可跑配置和满足生产 SLA 的建议配置。</p>
+        </div>
+        <div class="answer">
+          <div class="answer-card">
+            <strong>30 秒版本</strong>
+            <p>不能只看参数量。推理显存至少包括模型权重、KV Cache、峰值激活与工作区、框架和通信预留。算完容量后，还要根据 TP/PP/EP/DP 和互联拓扑判断 GPU 数，最后用目标上下文、并发与 SLA 做 profile。</p>
+          </div>
+          <div class="steps">
+            <div class="step"><div><b>明确 workload</b><span>模型结构、推理/训练、精度、上下文、并发与 SLA。</span></div></div>
+            <div class="step"><div><b>计算权重</b><span>参数量 × 平均字节，再加量化 scale、元数据与未量化层。</span></div></div>
+            <div class="step"><div><b>计算 KV</b><span>每 token KV 字节 × 所有活跃请求的 token 总数。</span></div></div>
+            <div class="step"><div><b>估算峰值工作区</b><span>Prefill chunk、CUDA Graph、NCCL、logits 与临时 workspace。</span></div></div>
+            <div class="step"><div><b>映射并行和拓扑</b><span>TP/EP 放高速域，DP/较粗 PP 更适合跨节点。</span></div></div>
+            <div class="step"><div><b>压测校准</b><span>给出“最小可跑”和“生产建议”两组答案。</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="ledger">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">Memory ledger</p><h2>显存不是一笔账，而是四笔</h2></div>
+          <p class="section-intro">权重通常是固定底座；KV 随全部活跃 token 增长；工作区随单轮 prefill/batch 峰值变化；运行时预留则由引擎和 kernel 决定。</p>
+        </div>
+        <div class="ledger">
+          <article class="ledger-card" data-number="1"><b>模型权重</b><p>参数量 × 平均存储字节。量化格式还包含 scale、zero-point、packing、padding 与未量化层。</p></article>
+          <article class="ledger-card" data-number="2"><b>KV Cache</b><p>每 token 的 K/V 状态 × 所有活跃 token。它会随上下文、输出长度和并发持续增长。</p></article>
+          <article class="ledger-card" data-number="3"><b>激活与工作区</b><p>Prefill 激活、Attention/GEMM workspace、logits、采样和临时 tensor。峰值常由单轮 token 数决定。</p></article>
+          <article class="ledger-card" data-number="4"><b>运行时预留</b><p>CUDA context、CUDA Graph、NCCL、allocator 碎片，以及 LoRA、draft model、视觉编码器等附加模块。</p></article>
+        </div>
+        <div class="equation">M_weights = parameters × bits_per_weight ÷ 8</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>权重格式</th><th>理论字节/参数</th><th>70B 理论大小</th><th>提醒</th></tr></thead>
+            <tbody>
+              <tr><td>BF16 / FP16</td><td>2.0</td><td>130.4 GiB</td><td>容量最大，精度稳定</td></tr>
+              <tr><td>FP8 / INT8</td><td>1.0</td><td>65.2 GiB</td><td>速度取决于硬件和 kernel</td></tr>
+              <tr><td>INT4 / W4A16</td><td>0.5</td><td>32.6 GiB</td><td>另加 scale、元数据和高精度层</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="equation">B_KV/token = 2(K+V) × L × H_kv × D_head × bytes(KV dtype)</div>
+        <div class="prose">
+          <p>多个请求长度不同，所以总 KV 更准确地写成 <strong>M_KV = B_KV/token × Σ Tᵢ</strong>。这里的 Σ Tᵢ 就是所有活跃请求实际缓存 token 的总数；如果有 B 个等长请求，每个 T 个 token，它才简化为 B × T。</p>
+          <p>Paged Attention 会减少碎片并按 block 动态分配，但不会改变一个有效 KV token 的理论字节数。Prefix cache 能让相同前缀只保存一次，因此物理占用更接近“唯一 KV pages 数”。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="attention">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">Attention fundamentals</p><h2>Hq、Hkv、Dhead 到底是什么</h2></div>
+          <p class="section-intro">Head 不是把原始 hidden state 复制多份，也不是直接切片；它是对完整 hidden state 做不同的可学习投影，再 reshape 成多个较小向量。</p>
+        </div>
+        <div class="attention-grid">
+          <article class="diagram">
+            <h3>从 hidden state 到多个 heads</h3>
+            <div class="shape-flow">
+              <div class="shape">X · [N, D_model]</div>
+              <div class="shape-row"><div class="shape">WQ</div><span class="op">→</span><div class="shape">Q · [N, Hq, Dhead]</div></div>
+              <div class="shape-row"><div class="shape">WK / WV</div><span class="op">→</span><div class="shape">K/V · [N, Hkv, Dhead]</div></div>
+              <div class="shape">Attention heads → concat → Wo → [N, D_model]</div>
+            </div>
+            <p style="margin:16px 0 0;color:rgba(255,255,255,.57);font-size:11px">常见设计令 Hq × Dhead = Dmodel，因此 Dhead = hidden_size / Hq；但这是架构选择，不是数学定律。更一般地，Dhead = Q projection 总宽度 / Hq。</p>
+          </article>
+          <article class="diagram">
+            <h3>GQA：多个 Q heads 共享 KV</h3>
+            <div class="head-map" aria-label="八个 Query heads"><span class="q-head">Q1</span><span class="q-head">Q2</span><span class="q-head">Q3</span><span class="q-head">Q4</span><span class="q-head">Q5</span><span class="q-head">Q6</span><span class="q-head">Q7</span><span class="q-head">Q8</span></div>
+            <div class="kv-map"><span class="kv-head">KV 1 · 服务 Q1–Q4</span><span class="kv-head">KV 2 · 服务 Q5–Q8</span></div>
+            <p style="margin:16px 0 0;color:rgba(255,255,255,.57);font-size:11px">MHA：Hq = Hkv。GQA：1 &lt; Hkv &lt; Hq。MQA：Hkv = 1。Llama 3.1 70B 使用 Hq=64、Hkv=8，因此每 8 个 Query heads 共享一组 K/V。</p>
+          </article>
+        </div>
+        <div class="equation">Attention(Q,K,V) = softmax(QKᵀ / √Dhead) V</div>
+        <div class="attention-grid">
+          <article class="note-card"><h3>为什么是 O(N²)</h3><p>每个 Query token 都要与 N 个 Key token 交互，共有 N×N 个 token pairs。QKᵀ 约需 2N²D FLOPs，后面的 Attention·V 也约需 2N²D FLOPs。Causal mask 只减少常数，不改变 O(N²)。</p></article>
+          <article class="note-card"><h3>GPU 会改变复杂度吗</h3><p>CPU/GPU 上 GEMM 的算术工作量都约为 2MNK FLOPs。GPU 通过更多并行单元和 Tensor Core 降低实际时间，但没有消除工作量。实际性能还取决于利用率、HBM IO、shape 对齐和 kernel launch。</p></article>
+          <article class="note-card"><h3>FlashAttention</h3><p>通过 tiling 避免把完整 N×N score 矩阵写回 HBM，大幅减少 IO 和中间内存；dense attention 的算术复杂度仍近似 O(N²D)。</p></article>
+          <article class="note-card"><h3>Prefill vs Decode</h3><p>完整 prefill 的 dense attention 是 O(N²)。KV Cache 下，单个新 token 只产生一个 Query，与 N 个历史 Keys 交互，所以单个 decode step 是 O(N)；连续生成 N 个 token 的总和仍是 O(N²)。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section dark" id="parallelism">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">Parallelism</p><h2>谁切容量，谁引入通信</h2></div>
+          <p class="section-intro">并行度不是简单相乘。Attention、dense MLP、MoE experts 可能使用不同网格；回答时要说清每一块内存由哪个维度切分。</p>
+        </div>
+        <div class="parallel-grid">
+          <article class="parallel-card"><strong>TP</strong><b>Tensor Parallel</b><p>一层内部切矩阵或 heads。降低每卡权重，但每层需要频繁 collective。</p></article>
+          <article class="parallel-card"><strong>PP</strong><b>Pipeline Parallel</b><p>按层切 stage。适合极大模型和跨节点，但有 stage 传输与 bubble。</p></article>
+          <article class="parallel-card"><strong>DP</strong><b>Data Parallel</b><p>复制模型副本，处理不同请求。扩总吞吐，但不解决单副本放不下。</p></article>
+          <article class="parallel-card"><strong>EP</strong><b>Expert Parallel</b><p>把 MoE experts 分到不同 GPU。分摊专家权重，引入 token all-to-all。</p></article>
+          <article class="parallel-card"><strong>CP</strong><b>Context Parallel</b><p>切序列/上下文维度。可分摊超长上下文状态，但 attention 通信复杂。</p></article>
+        </div>
+        <div class="equation">拓扑原则：TP / EP → 最快的 NVLink/NVSwitch/MNNVL 域；跨节点优先 DP 或较粗粒度 PP</div>
+      </div>
+    </section>
+
+    <section class="section" id="cases">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">Worked examples</p><h2>8B、70B 和 MoE，现场怎么算</h2></div>
+          <p class="section-intro">公式先给容量下界，再用并发、上下文、workspace 和互联把它变成部署方案。</p>
+        </div>
+        <div class="cases">
+          <article class="case"><span class="case-label">Llama 3.1 8B</span><h3>24 GiB 卡上的边界</h3><div class="number">128 KiB</div><p>BF16 KV / token：2×32×8×128×2。</p><ul><li>8K 单序列 KV ≈ 1 GiB</li><li>32K ≈ 4 GiB</li><li>128K ≈ 16 GiB</li><li>BF16 权重约 14.9 GiB</li></ul></article>
+          <article class="case"><span class="case-label">Llama 3.1 70B</span><h3>2×80G 为什么仍 OOM</h3><div class="number">320 KiB</div><p>BF16 KV / token：2×80×8×128×2。</p><ul><li>BF16 权重约 130.4 GiB</li><li>单序列 32K KV ≈ 10 GiB</li><li>16 路 × 8K KV 总计 ≈ 40 GiB</li><li>TP=2 时约 85.2 GiB/卡，未计 workspace</li></ul></article>
+          <article class="case"><span class="case-label">MoE</span><h3>总参数 ≠ 激活参数</h3><div class="number">671B / 37B</div><p>DeepSeek-V3 类模型：总参数决定主要常驻权重，激活参数更接近每 token 计算量。</p><ul><li>EP 分摊 experts 权重</li><li>token dispatch/combine 形成 all-to-all</li><li>负载偏斜产生 straggler</li></ul></article>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>70B 配置</th><th>每卡权重</th><th>KV 示例</th><th>容量判断</th></tr></thead>
+            <tbody>
+              <tr><td>BF16 · TP=2 · 2×80G</td><td>≈65.2 GiB</td><td>1×32K：≈5 GiB/卡</td><td>低并发可能可行，但运行空间紧</td></tr>
+              <tr><td>BF16 · TP=2 · 2×80G</td><td>≈65.2 GiB</td><td>16×8K：≈20 GiB/卡</td><td>未计 workspace 已超过 80 GiB</td></tr>
+              <tr><td>BF16 · TP=4 · 4×80G</td><td>≈32.6 GiB</td><td>16×8K：≈10 GiB/卡</td><td>容量宽裕，更适合生产压测</td></tr>
+              <tr><td>INT4 · 1×80G</td><td>理论≈32.6 GiB+</td><td>1×128K：≈40 GiB</td><td>非常依赖量化开销与 prefill 峰值</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="engines">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">Inference engines</p><h2>三个引擎，三个“0.9”口径</h2></div>
+          <p class="section-intro">默认值会随版本改变，长期应该记住参数控制哪一块账本。部署时以当前安装版本的帮助和对应文档为准。</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>引擎</th><th>关键参数</th><th>控制对象</th><th>使用提醒</th></tr></thead>
+            <tbody>
+              <tr><td>vLLM</td><td><code>--gpu-memory-utilization</code></td><td>当前 executor 的显存预算</td><td>默认值随版本变化</td></tr>
+              <tr><td>vLLM</td><td><code>--kv-cache-memory-bytes</code></td><td>每 GPU KV 的精确字节预算</td><td>设置后覆盖自动推导</td></tr>
+              <tr><td>vLLM</td><td><code>--max-num-batched-tokens</code></td><td>单轮最多处理 token 数</td><td>影响 prefill 峰值和调度</td></tr>
+              <tr><td>vLLM</td><td><code>--cpu-offload-gb</code></td><td>权重 CPU offload</td><td>每次 forward 搬权重，链路慢时代价大</td></tr>
+              <tr><td>SGLang</td><td><code>--mem-fraction-static</code></td><td>权重 + KV 静态池</td><td>降低可缓解 OOM，但会减少 token pool</td></tr>
+              <tr><td>SGLang</td><td><code>--max-total-tokens</code></td><td>KV token 池上限</td><td>比 max context 更接近总并发容量</td></tr>
+              <tr><td>SGLang</td><td><code>--chunked-prefill-size</code></td><td>Prefill chunk 大小</td><td>长 prompt OOM 时优先降低</td></tr>
+              <tr><td>TensorRT-LLM</td><td><code>free_gpu_memory_fraction</code></td><td>权重/buffer 后剩余显存中给 KV 的比例</td><td>不是总显存的 90%</td></tr>
+              <tr><td>TensorRT-LLM</td><td><code>max_tokens</code></td><td>KV Cache 最大 token 数</td><td>与 fraction 同设时取更小容量</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="offload">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">KV offload</p><h2>用容量换延迟，关键是别搬错数据</h2></div>
+          <p class="section-intro">热 KV 留在 HBM，冷 page 进入 CPU、NVMe 或远端层；真正的收益来自复用、预取和 KV-aware routing，而不是“把显存扩成无限大”。</p>
+        </div>
+        <div class="flow-levels">
+          <div class="level"><strong>GPU HBM</strong><span>最低延迟 · Paged KV</span></div>
+          <div class="level"><strong>CPU DRAM</strong><span>PCIe / NVLink-C2C</span></div>
+          <div class="level"><strong>Local NVMe</strong><span>更大容量 · 更高延迟</span></div>
+          <div class="level"><strong>Remote KV</strong><span>共享缓存 · 网络与路由</span></div>
+        </div>
+        <div class="attention-grid" style="margin-top:18px">
+          <article class="note-card"><h3>权重 offload</h3><p>每层、每次 forward 都可能把权重搬回 GPU，decode 很容易被 PCIe 带宽限制。</p></article>
+          <article class="note-card"><h3>KV offload</h3><p>只换出暂时不活跃的 pages，并在请求恢复前预取，代价更容易隐藏；若每步都缺页仍会很慢。</p></article>
+        </div>
+        <div class="equation">最低搬运时间 ≥ bytes_to_move ÷ effective_link_bandwidth</div>
+        <div class="prose"><p>例如搬 10 GiB KV，经 32 GB/s 的有效 PCIe 路径，纯传输下界约 0.31 秒；经数百 GB/s 的 C2C 路径，才可能降到几十毫秒。相关组件包括 LMCache、SGLang HiCache、Mooncake、NIXL、NVIDIA Dynamo 和 TensorRT-LLM KV Cache Manager。</p></div>
+      </div>
+    </section>
+
+    <section class="section alt" id="interconnect">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">Interconnect</p><h2>PCIe、IB、NVLink、C2C、MNNVL</h2></div>
+          <p class="section-intro">Scale-up 解决一个模型副本内部怎样高速协同；scale-out 解决更多节点和副本怎样扩展。比较带宽数字前，先统一单向、双向和 aggregate 口径。</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>互联</th><th>连接对象</th><th>主要角色</th><th>对并行的意义</th></tr></thead>
+            <tbody>
+              <tr><td>PCIe</td><td>GPU↔CPU / fallback GPU P2P</td><td>通用 I/O</td><td>权重 offload 和大 TP/EP 容易受限</td></tr>
+              <tr><td>NVLink</td><td>GPU↔GPU</td><td>高带宽低延迟 P2P</td><td>适合单机 TP/EP；H100 官方称最高 900 GB/s</td></tr>
+              <tr><td>NVSwitch</td><td>多 GPU 交换网络</td><td>高双截面 NVLink 域</td><td>HGX/DGX 内适合更大 TP</td></tr>
+              <tr><td>InfiniBand</td><td>跨服务器 NIC / GPU RDMA</td><td>集群 scale-out</td><td>NDR 400 Gb/s 单端口线速约 50 GB/s</td></tr>
+              <tr><td>NVLink-C2C</td><td>Grace CPU↔Hopper/Blackwell GPU</td><td>一致性 CPU-GPU 互联</td><td>有利于 CPU memory 扩展和 offload</td></tr>
+              <tr><td>MNNVL</td><td>跨 OS 节点的 rack-scale NVLink</td><td>Blackwell NVL72 scale-up fabric</td><td>72 GPU NVLink 域；依赖 IMEX/Fabric Manager/NCCL</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="validation">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">Production validation</p><h2>理论估算之后，怎么证明它真的能跑</h2></div>
+          <p class="section-intro">启动成功不等于压力下不会 OOM；平均吞吐很高也不代表 P99 能满足在线服务。</p>
+        </div>
+        <div class="checklist">
+          <div class="check">固定模型 revision、量化 checkpoint、CUDA/driver、引擎版本和 attention backend。</div>
+          <div class="check">读取 layers、hidden size、Q/KV heads、head dim、attention 类型和 MoE top-k。</div>
+          <div class="check">按实际 checkpoint 和加载 profile 校准权重，而不是只看“7B/70B”标签。</div>
+          <div class="check">从日志获得 input/output length、总活跃 token、并发和 prefix 重复率分布。</div>
+          <div class="check">分别压测 prefill-heavy、decode-heavy、长上下文、突发并发和混合 workload。</div>
+          <div class="check">记录峰值显存、KV capacity、TTFT、ITL、吞吐、排队、preemption 和 cache hit。</div>
+          <div class="check">核对 NCCL 是否走预期 NVLink/IB 路径，没有意外 fallback。</div>
+          <div class="check">做 30–60 分钟稳态压测，观察碎片、热身、graph capture 和异常请求。</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="video">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">Video outline</p><h2>把它讲成一期 20 分钟视频</h2></div>
+          <p class="section-intro">建议标题：《70B 模型到底要几张 GPU？一套公式算清显存、KV Cache 与并行策略》</p>
+        </div>
+        <div class="timeline">
+          <div class="timeline-row"><time>0:00–1:00</time><b>反直觉开场</b><span>140GB 权重，为什么 2×80G 仍然 OOM？</span></div>
+          <div class="timeline-row"><time>1:00–3:00</time><b>先问五个问题</b><span>模型、精度、长度、并发、SLA。</span></div>
+          <div class="timeline-row"><time>3:00–7:00</time><b>四块显存账本</b><span>权重、KV、workspace、运行时预留。</span></div>
+          <div class="timeline-row"><time>7:00–11:00</time><b>KV 手算</b><span>8B 与 70B；Hq、Hkv 和 Dhead。</span></div>
+          <div class="timeline-row"><time>11:00–14:00</time><b>并行策略</b><span>TP/PP/DP/EP 各自切什么、通信什么。</span></div>
+          <div class="timeline-row"><time>14:00–17:00</time><b>引擎参数</b><span>三套引擎的 utilization 和 token pool。</span></div>
+          <div class="timeline-row"><time>17:00–20:00</time><b>Offload 与互联</b><span>HBM→DRAM→NVMe；PCIe、IB、NVLink、C2C。</span></div>
+          <div class="timeline-row"><time>结尾</time><b>完整回答</b><span>最小可跑是一道容量题；生产建议是一道系统题。</span></div>
+        </div>
+        <div class="equation">跑得下，是容量题；跑得快，是 roofline、调度和通信题；跑得稳，才是生产系统题。</div>
+      </div>
+    </section>
+
+    <section class="section" id="sources">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">Primary sources</p><h2>继续学习</h2></div>
+          <p class="section-intro">引擎参数变化很快，具体默认值应以实际安装版本和对应版本文档为准。</p>
+        </div>
+        <ul class="sources">
+          <li><a href="https://docs.vllm.ai/en/latest/cli/serve/">vLLM Serve CLI</a></li>
+          <li><a href="https://docs.vllm.ai/en/stable/api/vllm/config/index.html">vLLM Config API</a></li>
+          <li><a href="https://sgl-project.github.io/advanced_features/server_arguments.html">SGLang Server Arguments</a></li>
+          <li><a href="https://github.com/sgl-project/sglang/blob/main/docs_new/docs/advanced_features/hicache.mdx">SGLang HiCache</a></li>
+          <li><a href="https://nvidia.github.io/TensorRT-LLM/reference/memory.html">TensorRT-LLM Memory Usage</a></li>
+          <li><a href="https://nvidia.github.io/TensorRT-LLM/1.2.0/features/kvcache.html">TensorRT-LLM KV Cache System</a></li>
+          <li><a href="https://arxiv.org/abs/2205.14135">FlashAttention paper</a></li>
+          <li><a href="https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/blob/main/config.json">Llama 3.1 8B config</a></li>
+          <li><a href="https://huggingface.co/meta-llama/Llama-3.1-70B-Instruct/blob/main/config.json">Llama 3.1 70B config</a></li>
+          <li><a href="https://github.com/deepseek-ai/DeepSeek-V3">DeepSeek-V3 technical report</a></li>
+          <li><a href="https://www.nvidia.com/en-us/data-center/h100/">NVIDIA H100</a></li>
+          <li><a href="https://docs.nvidia.com/multi-node-nvlink-systems/mnnvl-user-guide/overview.html">NVIDIA MNNVL User Guide</a></li>
+          <li><a href="https://www.nvidia.com/en-us/data-center/gb200-nvl72/">NVIDIA GB200 NVL72</a></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>LLM inference memory field guide · 2026</footer>
+
+  <script>
+    const ids = ["params", "weightBits", "layers", "qHeads", "kvHeads", "headDim", "kvBytes", "tokens", "gpuMemory", "overhead", "utilization"];
+    const el = Object.fromEntries(ids.map(id => [id, document.getElementById(id)]));
+    const gib = 2 ** 30;
+    const format = value => `${value.toFixed(value >= 100 ? 1 : 2)} GiB`;
+    function calculate() {
+      const params = Number(el.params.value) * 1e9;
+      const weightBits = Number(el.weightBits.value);
+      const layers = Number(el.layers.value);
+      const qHeads = Number(el.qHeads.value);
+      const kvHeads = Number(el.kvHeads.value);
+      const headDim = Number(el.headDim.value);
+      const kvBytes = Number(el.kvBytes.value);
+      const tokens = Number(el.tokens.value);
+      const gpuMemory = Number(el.gpuMemory.value);
+      const overhead = Number(el.overhead.value);
+      const utilization = Number(el.utilization.value);
+      const weight = params * weightBits / 8 / gib;
+      const bytesPerToken = 2 * layers * kvHeads * headDim * kvBytes;
+      const kv = bytesPerToken * tokens / gib;
+      let count = 129;
+      let perGpu = Infinity;
+      const gcd = (a, b) => b ? gcd(b, a % b) : a;
+      for (let n = 1; n <= Math.min(128, qHeads); n++) {
+        if (qHeads % n !== 0) continue;
+        const kvShard = gcd(n, kvHeads);
+        const candidate = weight / n + kv / kvShard + overhead;
+        if (candidate <= gpuMemory * utilization) { count = n; perGpu = candidate; break; }
+      }
+      document.getElementById("gpuCount").textContent = count <= 128 ? count : ">128";
+      document.getElementById("weightTotal").textContent = format(weight);
+      document.getElementById("kvTotal").textContent = format(kv);
+      document.getElementById("perToken").textContent = bytesPerToken >= 1024 * 1024 ? `${(bytesPerToken / 1024 / 1024).toFixed(2)} MiB` : `${(bytesPerToken / 1024).toFixed(0)} KiB`;
+      document.getElementById("perGpu").textContent = Number.isFinite(perGpu) ? format(perGpu) : "超出范围";
+      document.getElementById("resultNote").textContent = count <= 128 ? `近似 TP=${count}；要求 TP 可整除 ${qHeads} 个 Query heads` : "当前参数在搜索范围内无法满足容量约束";
+    }
+    document.querySelectorAll("input, select").forEach(node => node.addEventListener("input", calculate));
+    document.querySelectorAll("[data-preset]").forEach(button => button.addEventListener("click", () => {
+      const p = button.dataset.preset;
+      const values = p === "8b" ? { params: 8, layers: 32, qHeads: 32, kvHeads: 8, headDim: 128, tokens: 32768, gpuMemory: 24, overhead: 4 } : { params: 70, layers: 80, qHeads: 64, kvHeads: 8, headDim: 128, tokens: 131072, gpuMemory: 80, overhead: 8 };
+      Object.entries(values).forEach(([key, value]) => { el[key].value = value; });
+      calculate();
+    }));
+    calculate();
+  </script>
+</body>
+</html>
